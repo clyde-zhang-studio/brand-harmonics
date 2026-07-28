@@ -173,7 +173,7 @@ RENDER.landing = () => `
   <section class="hero">
     <div class="herogrid">
       <div>
-        <p class="overline">a semiotic study · in twelve keys</p>
+        <p class="overline">strategy you can hear</p>
         <h1 class="title">${APP.title}</h1>
         ${APP.landing.map((p) => `<p class="lede">${p}</p>`).join('')}
         <div class="btnrow">
@@ -838,7 +838,7 @@ RENDER.leadsheet = () => {
       <button class="btn" data-act="notes">field notes</button>
       <button class="btn ghost" data-act="again">begin another study</button>
     </div>
-    <p class="printfoot">harmonics — a semiotic study in twelve keys</p>
+    <p class="printfoot">brand harmonics — strategy you can hear</p>
   </section>`;
 };
 
@@ -950,7 +950,7 @@ function exportMarkdown() {
   L.push(`- **Carry from home:** ${B.guardrails.keep}`);
   L.push(`- **The shadow to refuse:** ${B.guardrails.refuse}`);
   if (B.guardrails.watch) L.push(`- **Standing watch:** ${B.guardrails.watch}`);
-  L.push('', `_harmonics — a semiotic study in twelve keys_`);
+  L.push('', `_brand harmonics — strategy you can hear_`);
   return L.join('\n');
 }
 

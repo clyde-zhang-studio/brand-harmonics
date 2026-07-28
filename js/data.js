@@ -612,11 +612,11 @@ export const SAYNOT = {
 
 /* ---- ui strings --------------------------------------------------- */
 export const APP = {
-  title: 'harmonics',
+  title: 'brand harmonics',
   tagline: 'a semiotic study of brands, in twelve keys',
   landing: [
-    'Every brand is a claim about meaning, and every claim has a sound.',
-    'Some brands are in tune with the people they serve. Some are one sharp away and call it strategy. Some are a tritone from their own reputation and call it mystery.',
-    'This study locates a brand four times — as it is, as its people are, as it is believed to be, as it could be — sets each position ringing in its proper key, and composes the way home.',
+    'What key is your brand in?',
+    'Twelve archetypes, twelve keys, one wheel — and suddenly positioning is audible: in tune with the people it serves, or a tritone from its own reputation.',
+    'Locate your brand. Listen to the gaps. Compose where it goes next — jazz, classical, or pop.',
   ],
 };

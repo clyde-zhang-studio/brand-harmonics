@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>harmonics — a semiotic study in twelve keys</title>
+<title>brand harmonics — strategy you can hear</title>
 <meta name="description" content="An interactive semiotic study of brands: twelve brand archetypes mapped onto the twelve keys of the circle of fifths." />
 <!-- Self-contained by design: no network requests at all, so the display face
      falls back to Georgia and the text face to the system UI font. -->
@@ -445,7 +445,7 @@ body {
 <div id="announcer" role="status" aria-live="polite" class="visually-hidden"></div>
 <noscript>
   <div style="max-width:680px;margin:12vh auto;padding:32px;border:2.5px solid #241b10;border-radius:10px;background:#fffdf4;box-shadow:6px 6px 0 #241b10;font-family:Georgia,serif">
-    <h1 style="font-style:italic;font-weight:400;margin:0 0 .4em">harmonics</h1>
+    <h1 style="font-style:italic;font-weight:400;margin:0 0 .4em">brand harmonics</h1>
     <p style="line-height:1.7">This study is an interactive instrument — it needs JavaScript to plot the semiotic square, sound the circle of fifths, and compose the progression. Please enable JavaScript and reload.</p>
   </div>
 </noscript>
@@ -1065,12 +1065,12 @@ const SAYNOT = {
 
 /* ---- ui strings --------------------------------------------------- */
 const APP = {
-  title: 'harmonics',
+  title: 'brand harmonics',
   tagline: 'a semiotic study of brands, in twelve keys',
   landing: [
-    'Every brand is a claim about meaning, and every claim has a sound.',
-    'Some brands are in tune with the people they serve. Some are one sharp away and call it strategy. Some are a tritone from their own reputation and call it mystery.',
-    'This study locates a brand four times — as it is, as its people are, as it is believed to be, as it could be — sets each position ringing in its proper key, and composes the way home.',
+    'What key is your brand in?',
+    'Twelve archetypes, twelve keys, one wheel — and suddenly positioning is audible: in tune with the people it serves, or a tritone from its own reputation.',
+    'Locate your brand. Listen to the gaps. Compose where it goes next — jazz, classical, or pop.',
   ],
 };
 /* ==================== theory.js ==================== */
@@ -2160,7 +2160,7 @@ RENDER.landing = () => `
   <section class="hero">
     <div class="herogrid">
       <div>
-        <p class="overline">a semiotic study · in twelve keys</p>
+        <p class="overline">strategy you can hear</p>
         <h1 class="title">${APP.title}</h1>
         ${APP.landing.map((p) => `<p class="lede">${p}</p>`).join('')}
         <div class="btnrow">
@@ -2825,7 +2825,7 @@ RENDER.leadsheet = () => {
       <button class="btn" data-act="notes">field notes</button>
       <button class="btn ghost" data-act="again">begin another study</button>
     </div>
-    <p class="printfoot">harmonics — a semiotic study in twelve keys</p>
+    <p class="printfoot">brand harmonics — strategy you can hear</p>
   </section>`;
 };
 
@@ -2937,7 +2937,7 @@ function exportMarkdown() {
   L.push(`- **Carry from home:** ${B.guardrails.keep}`);
   L.push(`- **The shadow to refuse:** ${B.guardrails.refuse}`);
   if (B.guardrails.watch) L.push(`- **Standing watch:** ${B.guardrails.watch}`);
-  L.push('', `_harmonics — a semiotic study in twelve keys_`);
+  L.push('', `_brand harmonics — strategy you can hear_`);
   return L.join('\n');
 }
 
