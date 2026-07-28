@@ -42,17 +42,40 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 const reg = (pc) => 48 + (pc > 7 ? pc - 12 : pc);
 const playable = (c) => ({ rootMidi: reg(c.rootSemitone), intervals: c.intervals });
 
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function setScreen(name) {
   audio.stopAll();
   state.screen = name;
   stage.classList.add('leaving');
   setTimeout(() => {
-    stage.innerHTML = RENDER[name]();
-    WIRE[name] && WIRE[name]();
+    try {
+      stage.innerHTML = RENDER[name]();
+      WIRE[name] && WIRE[name]();
+    } catch (err) {
+      // never leave the reader staring at an empty cream page
+      stage.innerHTML = `<section class="panel narrow"><p class="overline">a wrong note</p>
+        <h2 class="h2">Something in the score failed to load.</h2>
+        <p class="body">Reloading usually clears it. If it keeps happening, the browser console has the detail.</p>
+        <div class="btnrow"><button class="btn primary" onclick="location.reload()">reload</button></div></section>`;
+      console.error(err);
+    }
     stage.classList.remove('leaving');
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0 });
     armReveals();
+    announceScreen();
   }, 260);
+}
+
+/* move focus and announce a short phrase — not the whole screen */
+function announceScreen() {
+  const heading = stage.querySelector('.h2, .title');
+  if (heading) {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus({ preventScroll: true });
+  }
+  const announcer = document.getElementById('announcer');
+  if (announcer && heading) announcer.textContent = heading.textContent.trim();
 }
 
 /* collage pieces paste themselves down as they scroll into view */
@@ -195,7 +218,7 @@ RENDER.setup = () => `
           <span class="pgo">hear this study →</span>
         </button>`).join('')}
     </div>
-    <p class="backlink"><a data-act="back">← back</a></p>
+    <p class="backlink"><button type="button" class="linkbtn" data-act="back">← back</button></p>
   </section>`;
 
 WIRE.setup = () => {
@@ -267,7 +290,7 @@ RENDER.assess = () => {
     <h2 class="h2">${lens.title}</h2>
     <p class="lensprompt">${lens.prompt}</p>
     ${body}
-    <p class="backlink">${state.lens + state.item > 0 ? '<a data-act="prev">← previous</a>' : '<a data-act="quit">← abandon study</a>'}</p>
+    <p class="backlink">${state.lens + state.item > 0 ? '<button type="button" class="linkbtn" data-act="prev">← previous</button>' : '<button type="button" class="linkbtn" data-act="quit">← abandon study</button>'}</p>
   </section>`;
 };
 
@@ -462,7 +485,7 @@ RENDER.futures = () => {
         <strong>Your stated ambition</strong> — ${dest.name} in ${pretty(dest.key)} — isn’t where any of the three genres naturally land
         (audience: ${EARSHOT_WORDS[aud].toLowerCase()} · belief: ${BELIEF_WORDS[belief].toLowerCase()}).
         It may still be right — strategy outranks arithmetic when it has a reason.
-        <a data-choose="${statedIdx}" data-via="stated">compose it anyway, by the book →</a>
+        <button type="button" class="linkbtn" data-choose="${statedIdx}" data-via="stated">compose it anyway, by the book →</button>
       </div>`;
   }
 
@@ -822,7 +845,7 @@ WIRE.leadsheet = () => {
   const highlightBar = (i) => {
     qa('.measure').forEach((m) => m.classList.remove('playing'));
     const el = q(`[data-measure="${i}"]`);
-    if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); }
   };
   q('[data-act=perform]').onclick = () => {
     const genre = state.prog.journey.genre || 'classical';
@@ -840,7 +863,7 @@ WIRE.leadsheet = () => {
       onStep: (i) => {
         qa('.measure').forEach((m) => m.classList.remove('playing'));
         const el = q(`[data-measure="${i}"]`);
-        if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+        if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); }
       },
       onDone: () => qa('.measure').forEach((m) => m.classList.remove('playing')),
     });
@@ -876,7 +899,7 @@ RENDER.notes = () => `
           <span class="mlore">${a.keyLore}</span>
         </div>`).join('')}
     </div>
-    <p class="backlink"><a data-act="back">← return</a></p>
+    <p class="backlink"><button type="button" class="linkbtn" data-act="back">← return</button></p>
   </section>`;
 
 WIRE.notes = () => { q('[data-act=back]').onclick = () => setScreen(state.cameFrom || 'landing'); };

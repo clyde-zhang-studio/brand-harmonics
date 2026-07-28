@@ -2,18 +2,22 @@
 
 *A semiotic study of brands, in twelve keys.*
 
-An interactive study that locates a brand four times — **as it is** (identity), **as its people are** (audience), **as it is believed to be** (image), **as it could be** (aspiration) — sets each position ringing in its proper musical key, and composes the repositioning as a chord progression. The final deliverable is a lead sheet: chords above, actionable design-strategy principles beneath.
+**→ [cownut-oss.github.io/brand-harmonics](https://cownut-oss.github.io/brand-harmonics/)**
 
-Built as a single-page site with **no dependencies and no build step** — plain HTML, CSS, and ES modules, including a hand-rolled Web Audio synthesizer. Serve the folder statically and it runs forever.
+An interactive study that locates a brand four times — **as it is** (identity), **as its people are** (audience), **as it is believed to be** (image), **as it could be** (aspiration) — sets each position ringing in its proper musical key, and composes the repositioning as a chord progression you can actually hear played. The final deliverable is a creative brief: the lead sheet, the moves, say-this-not-that voice, look and feel, and guardrails.
+
+Built as a single-page site with **no dependencies and no build step** — plain HTML, CSS, and ES modules, including a hand-written piano and drum kit on the Web Audio API. Serve the folder statically and it runs forever.
 
 ## Run it
 
 ```bash
-python3 -m http.server 8431 --directory .
+python3 -m http.server 8431
 # then open http://localhost:8431
 ```
 
-(Any static server works. ES modules require http://, not file://.)
+Any static server works — ES modules need `http://`, not `file://`. Or just double-click `harmonics-onefile.html`, which is the whole app inlined into a single file and needs nothing at all.
+
+Publishing and updating the live site: see [DEPLOY.md](DEPLOY.md).
 
 ## The idea
 

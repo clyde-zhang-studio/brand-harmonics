@@ -1,6 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8" />
-<title>harmonics</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>harmonics — a semiotic study in twelve keys</title>
+<meta name="description" content="An interactive semiotic study of brands: twelve brand archetypes mapped onto the twelve keys of the circle of fifths." />
+<!-- Self-contained by design: no network requests at all, so the display face
+     falls back to Georgia and the text face to the system UI font. -->
 <style>
 /* =====================================================================
    harmonics — visual system v2: the collage cut.
@@ -21,7 +27,7 @@
   --teal: #159f87;
   --red-d: #c22c14;
   --blue-d: #1e3da6;
-  --gold-d: #a97a08;
+  --gold-d: #8a6206;
   --teal-d: #0d7a66;
   --cream-text: #fff8ec;
   --shadow: 3px 3px 0 var(--ink);
@@ -56,6 +62,13 @@ body {
 #vignette { display: none; }
 #grain { position: fixed; inset: 0; z-index: 30; pointer-events: none; opacity: .06; mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* headings receive focus on screen change — silent for mouse, visible for keyboard */
+.h2:focus, .title:focus { outline: none; }
+.h2:focus-visible, .title:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; border-radius: 4px; }
 
 /* ---- stage ---- */
 #stage { position: relative; z-index: 10; max-width: 1020px; margin: 0 auto; padding: 6vh 24px 12vh;
@@ -111,14 +124,14 @@ body {
 .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
 .btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
 .btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-.btn.primary { background: var(--red); color: var(--cream-text); }
+.btn.primary { background: var(--red-d); color: var(--cream-text); }
 .btn.ghost { background: transparent; border-color: transparent; box-shadow: none; text-decoration: underline;
   text-decoration-thickness: 2px; text-underline-offset: 4px; padding-left: .4em; padding-right: .4em; }
 .btn.ghost:hover { transform: none; color: var(--red-d); }
 .btn.small { font-size: .62rem; padding: .6em 1.1em; box-shadow: 2px 2px 0 var(--ink); }
 .btn.big { display: flex; flex-direction: column; align-items: flex-start; gap: .3em;
   padding: 1.05em 1.5em; border-radius: 9px; box-shadow: 5px 5px 0 var(--ink); text-align: left; }
-.btn.c-red { background: var(--red); color: var(--cream-text); transform: rotate(-1deg); }
+.btn.c-red { background: var(--red-d); color: var(--cream-text); transform: rotate(-1deg); }
 .btn.c-blue { background: var(--blue); color: var(--cream-text); transform: rotate(.7deg); }
 .btn.c-gold { background: var(--gold); color: var(--ink); transform: rotate(-.5deg); }
 .btn.big:hover { transform: translate(-1px, -2px) rotate(0deg); box-shadow: 6px 6px 0 var(--ink); }
@@ -128,16 +141,21 @@ body {
 .btnrow.tight { margin-top: 1.2em; }
 
 .backlink { margin-top: 2.4em; }
-.backlink a { color: var(--ink-soft); font-size: .78rem; font-weight: 600; letter-spacing: .06em;
-  cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.backlink a:hover { color: var(--red-d); }
+/* real buttons styled as links, so they stay keyboard-reachable */
+.linkbtn { font-family: inherit; background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--ink-soft); font-size: .78rem; font-weight: 600; letter-spacing: .06em;
+  text-decoration: underline; text-underline-offset: 3px; }
+.linkbtn:hover { color: var(--red-d); }
+.linkbtn:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+.alsoran .linkbtn { color: var(--blue-d); font-weight: 700; font-size: inherit; letter-spacing: 0; }
 
 /* ---- setup ---- */
 .namerow { display: flex; gap: 16px; flex-wrap: wrap; margin: 1.6em 0 2.4em; }
 .input { flex: 1 1 240px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.35rem; font-style: italic;
   color: var(--ink); background: var(--card); border: 2.5px solid var(--ink); border-radius: 8px;
   padding: .5em .9em; outline: none; box-shadow: var(--shadow); transition: border-color .2s; }
-.input:focus { border-color: var(--red); }
+.input:focus-visible { border-color: var(--red-d); outline: 3px solid var(--blue); outline-offset: 2px; }
+.input:focus { border-color: var(--red-d); }
 .input::placeholder { color: var(--ink-faint); }
 
 .ruleline { display: flex; align-items: center; gap: 1em; color: var(--ink-soft);
@@ -212,7 +230,7 @@ body {
 .minornote { font-size: .78rem; line-height: 1.6; color: var(--blue-d); margin: .6em 0 0; }
 
 /* ---- sound: wheel + gaps ---- */
-.wheel { width: min(92vw, 640px); height: auto; display: block; margin: 1.5em auto; }
+.wheel { width: 100%; max-width: 640px; height: auto; display: block; margin: 1.5em auto; }
 .wheel .ring { fill: none; stroke: var(--ink); stroke-opacity: .55; stroke-width: 1.8; }
 .wheel .quadarc { fill: none; stroke-width: 26; stroke-linecap: round; }
 .wheel .tick { fill: var(--ink); }
@@ -246,7 +264,7 @@ body {
 .gaphead { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; flex-wrap: wrap; }
 .gapname { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.3rem; color: var(--ink); }
 .govbadge { font-family: 'Inter', sans-serif; font-style: normal; font-size: .56rem; font-weight: 700; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--cream-text); background: var(--red); border-radius: 4px;
+  text-transform: uppercase; color: var(--cream-text); background: var(--red-d); border-radius: 4px;
   padding: .4em .8em; margin-left: 1em; vertical-align: middle; box-shadow: 2px 2px 0 var(--ink); }
 .gapkeys { font-size: .8rem; font-weight: 700; letter-spacing: .06em; margin: .5em 0 .1em; }
 .gapq { font-style: italic; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.08rem;
@@ -259,7 +277,7 @@ body {
 .cadencecard { background: rgba(240, 173, 31, .16); }
 .phasename { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.4rem; margin: 0 0 .4em; color: var(--ink); }
 .pivotline { display: inline-block; font-size: .64rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--cream-text); background: var(--teal); padding: .35em .8em; box-shadow: 2px 2px 0 var(--ink);
+  color: var(--cream-text); background: var(--teal-d); padding: .35em .8em; box-shadow: 2px 2px 0 var(--ink);
   transform: rotate(-.4deg); margin: 0 0 .8em; }
 .chordline { margin-top: 1em; display: flex; flex-wrap: wrap; gap: .6em; }
 .chordtok { display: inline-flex; flex-direction: column; align-items: center;
@@ -322,10 +340,10 @@ body {
 .roadrow { display: grid; grid-template-columns: 96px 1fr; gap: 20px; padding: 18px 20px;
   border: 2.5px solid var(--ink); border-radius: 8px; background: var(--card); box-shadow: var(--shadow); }
 .roadwhen { font-size: .62rem; font-weight: 700; letter-spacing: .2em; color: var(--cream-text); text-transform: uppercase;
-  background: var(--red); align-self: start; justify-self: start; padding: .5em .8em; transform: rotate(-2deg);
+  background: var(--red-d); align-self: start; justify-self: start; padding: .5em .8em; transform: rotate(-2deg);
   box-shadow: 2px 2px 0 var(--ink); }
 .roadrow:nth-child(2) .roadwhen { background: var(--blue); }
-.roadrow:nth-child(3) .roadwhen { background: var(--teal); }
+.roadrow:nth-child(3) .roadwhen { background: var(--teal-d); }
 .roadtitle { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.35rem; color: var(--ink); margin: 0 0 .2em; }
 .whyline { font-size: .9rem; line-height: 1.7; margin: .3em 0 .5em; }
 .dolist { margin: .3em 0 .5em; padding-left: 1.2em; }
@@ -356,6 +374,14 @@ body {
 .mname { font-size: .82rem; font-weight: 700; color: var(--ink); padding-top: .35em; }
 .mname i { display: block; font-style: italic; font-weight: 400; color: var(--ink-soft); font-size: .78rem; margin-top: .2em; }
 .mlore { font-size: .82rem; line-height: 1.7; color: var(--ink); opacity: .85; }
+
+/* ---- touch: every control gets a 44px target on finger-driven devices ---- */
+@media (pointer: coarse) {
+  .btn, .chip { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .btn.big { flex-direction: column; align-items: flex-start; justify-content: center; }
+  .btn.small { padding: .8em 1.2em; }
+  .backlink a, .alsoran a { display: inline-block; padding: .6em 0; }
+}
 
 /* ---- liveliness: paste-down reveals & performance cues ---- */
 .reveal { opacity: 0; translate: 0 18px; transition: opacity .5s ease, translate .55s cubic-bezier(.2, .8, .3, 1.04); }
@@ -402,14 +428,23 @@ body {
 }
 
 </style>
+</head>
+<body>
 <div id="haze" aria-hidden="true">
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
 </div>
 <div id="vignette" aria-hidden="true"></div>
 <div id="grain" aria-hidden="true"></div>
-<main id="stage" aria-live="polite"></main>
+<main id="stage"></main>
+<div id="announcer" role="status" aria-live="polite" class="visually-hidden"></div>
+<noscript>
+  <div style="max-width:680px;margin:12vh auto;padding:32px;border:2.5px solid #241b10;border-radius:10px;background:#fffdf4;box-shadow:6px 6px 0 #241b10;font-family:Georgia,serif">
+    <h1 style="font-style:italic;font-weight:400;margin:0 0 .4em">harmonics</h1>
+    <p style="line-height:1.7">This study is an interactive instrument — it needs JavaScript to plot the semiotic square, sound the circle of fifths, and compose the progression. Please enable JavaScript and reload.</p>
+  </div>
+</noscript>
 <script>
-/* ══════ data.js ══════ */
+/* ==================== data.js ==================== */
 /* =====================================================================
    data.js — the theory of the piece, written down.
 
@@ -1032,7 +1067,7 @@ const APP = {
     'This study locates a brand four times — as it is, as its people are, as it is believed to be, as it could be — sets each position ringing in its proper key, and composes the way home.',
   ],
 };
-/* ══════ theory.js ══════ */
+/* ==================== theory.js ==================== */
 /* =====================================================================
    theory.js — the music engine.
    Pure functions, no DOM: keys, diatonic chords, circle distance,
@@ -1324,7 +1359,7 @@ function fullProgression(study, destIdx, destMode = 'major', via = 'classical') 
   cadenceProgression(cadKind, destIdx, destMode).forEach((c) => bars.push({ chord: c, tag: 'cadence' }));
   return { journey, cadence: cadKind, bars, destIdx, destMode };
 }
-/* ══════ scoring.js ══════ */
+/* ==================== scoring.js ==================== */
 /* =====================================================================
    scoring.js — from answers to positions.
    Each lens: six axis choices (+ one valence) → a 12-dim archetype
@@ -1411,7 +1446,7 @@ function runStudy(allAnswers) {
 
   return { ...lenses, square };
 }
-/* ══════ audio.js ══════ */
+/* ==================== audio.js ==================== */
 /* =====================================================================
    audio.js — a piano on the raw Web Audio API.
    Additive synthesis, struck not plucked: stacked partials with
@@ -1478,9 +1513,14 @@ function pluckBuffer(midi) {
     const w = 2 * Math.PI * f * p.n * Math.pow(stretch, p.n * p.n) / sr;
     const dec = p.decay * (midi < 52 ? 1.5 : 1); // bass rings longer
     const g0 = p.gain * brightness;
-    for (let i = 0; i < len; i++) {
-      const t = i / sr;
-      data[i] += g0 * Math.exp(-t / dec) * Math.sin(w * i);
+    // stop each partial once its envelope is inaudible — the upper partials
+    // die in a fraction of the buffer, so most of the work disappears
+    const audibleFor = Math.min(len, Math.ceil(dec * Math.log(g0 / 0.0002) * sr));
+    const decayStep = Math.exp(-1 / (dec * sr));
+    let env = g0;
+    for (let i = 0; i < audibleFor; i++) {
+      data[i] += env * Math.sin(w * i);
+      env *= decayStep;
     }
   }
   // hammer thump: a few ms of soft filtered noise at the very front
@@ -1626,7 +1666,7 @@ function stopAll() {
   active.clear();
 }
 const audio = { playChord, playPolychord, playTetrad, playProgression, playPiece, stopAll };
-/* ══════ composer.js ══════ */
+/* ==================== composer.js ==================== */
 /* =====================================================================
    composer.js — from progression to performance.
    Takes the study's bars and a genre, returns a scheduled piece:
@@ -1749,7 +1789,7 @@ function composePiece(bars, genre) {
   }
   return { events, bpm: 126, beatsPerBar: 4, barCount: n };
 }
-/* ══════ wheel.js ══════ */
+/* ==================== wheel.js ==================== */
 /* =====================================================================
    wheel.js — the circle of fifths, drawn.
    Twelve nodes (key + archetype), four position-orbs, gap-chords
@@ -1867,7 +1907,7 @@ function renderWheel(opts = {}) {
   s += `</svg>`;
   return s;
 }
-/* ══════ square.js ══════ */
+/* ==================== square.js ==================== */
 /* =====================================================================
    square.js — the Greimas square, drawn.
    S1 and S2 across the top (contraries), their negations beneath,
@@ -1954,7 +1994,7 @@ function renderSquare(study) {
   s += `</svg>`;
   return s;
 }
-/* ══════ app.js ══════ */
+/* ==================== app.js ==================== */
 /* =====================================================================
    app.js — the conductor.
    Screen flow: landing → setup → assessment (four movements) →
@@ -1983,17 +2023,40 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 const reg = (pc) => 48 + (pc > 7 ? pc - 12 : pc);
 const playable = (c) => ({ rootMidi: reg(c.rootSemitone), intervals: c.intervals });
 
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function setScreen(name) {
   audio.stopAll();
   state.screen = name;
   stage.classList.add('leaving');
   setTimeout(() => {
-    stage.innerHTML = RENDER[name]();
-    WIRE[name] && WIRE[name]();
+    try {
+      stage.innerHTML = RENDER[name]();
+      WIRE[name] && WIRE[name]();
+    } catch (err) {
+      // never leave the reader staring at an empty cream page
+      stage.innerHTML = `<section class="panel narrow"><p class="overline">a wrong note</p>
+        <h2 class="h2">Something in the score failed to load.</h2>
+        <p class="body">Reloading usually clears it. If it keeps happening, the browser console has the detail.</p>
+        <div class="btnrow"><button class="btn primary" onclick="location.reload()">reload</button></div></section>`;
+      console.error(err);
+    }
     stage.classList.remove('leaving');
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0 });
     armReveals();
+    announceScreen();
   }, 260);
+}
+
+/* move focus and announce a short phrase — not the whole screen */
+function announceScreen() {
+  const heading = stage.querySelector('.h2, .title');
+  if (heading) {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus({ preventScroll: true });
+  }
+  const announcer = document.getElementById('announcer');
+  if (announcer && heading) announcer.textContent = heading.textContent.trim();
 }
 
 /* collage pieces paste themselves down as they scroll into view */
@@ -2136,7 +2199,7 @@ RENDER.setup = () => `
           <span class="pgo">hear this study →</span>
         </button>`).join('')}
     </div>
-    <p class="backlink"><a data-act="back">← back</a></p>
+    <p class="backlink"><button type="button" class="linkbtn" data-act="back">← back</button></p>
   </section>`;
 
 WIRE.setup = () => {
@@ -2208,7 +2271,7 @@ RENDER.assess = () => {
     <h2 class="h2">${lens.title}</h2>
     <p class="lensprompt">${lens.prompt}</p>
     ${body}
-    <p class="backlink">${state.lens + state.item > 0 ? '<a data-act="prev">← previous</a>' : '<a data-act="quit">← abandon study</a>'}</p>
+    <p class="backlink">${state.lens + state.item > 0 ? '<button type="button" class="linkbtn" data-act="prev">← previous</button>' : '<button type="button" class="linkbtn" data-act="quit">← abandon study</button>'}</p>
   </section>`;
 };
 
@@ -2403,7 +2466,7 @@ RENDER.futures = () => {
         <strong>Your stated ambition</strong> — ${dest.name} in ${pretty(dest.key)} — isn’t where any of the three genres naturally land
         (audience: ${EARSHOT_WORDS[aud].toLowerCase()} · belief: ${BELIEF_WORDS[belief].toLowerCase()}).
         It may still be right — strategy outranks arithmetic when it has a reason.
-        <a data-choose="${statedIdx}" data-via="stated">compose it anyway, by the book →</a>
+        <button type="button" class="linkbtn" data-choose="${statedIdx}" data-via="stated">compose it anyway, by the book →</button>
       </div>`;
   }
 
@@ -2763,7 +2826,7 @@ WIRE.leadsheet = () => {
   const highlightBar = (i) => {
     qa('.measure').forEach((m) => m.classList.remove('playing'));
     const el = q(`[data-measure="${i}"]`);
-    if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); }
   };
   q('[data-act=perform]').onclick = () => {
     const genre = state.prog.journey.genre || 'classical';
@@ -2781,7 +2844,7 @@ WIRE.leadsheet = () => {
       onStep: (i) => {
         qa('.measure').forEach((m) => m.classList.remove('playing'));
         const el = q(`[data-measure="${i}"]`);
-        if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+        if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); }
       },
       onDone: () => qa('.measure').forEach((m) => m.classList.remove('playing')),
     });
@@ -2817,7 +2880,7 @@ RENDER.notes = () => `
           <span class="mlore">${a.keyLore}</span>
         </div>`).join('')}
     </div>
-    <p class="backlink"><a data-act="back">← return</a></p>
+    <p class="backlink"><button type="button" class="linkbtn" data-act="back">← return</button></p>
   </section>`;
 
 WIRE.notes = () => { q('[data-act=back]').onclick = () => setScreen(state.cameFrom || 'landing'); };
@@ -2890,3 +2953,5 @@ armReveals();
 window.__harmonics = state; // inspectable from the console; harmless in production
 
 </script>
+</body>
+</html>

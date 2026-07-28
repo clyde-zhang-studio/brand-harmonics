@@ -64,9 +64,14 @@ function pluckBuffer(midi) {
     const w = 2 * Math.PI * f * p.n * Math.pow(stretch, p.n * p.n) / sr;
     const dec = p.decay * (midi < 52 ? 1.5 : 1); // bass rings longer
     const g0 = p.gain * brightness;
-    for (let i = 0; i < len; i++) {
-      const t = i / sr;
-      data[i] += g0 * Math.exp(-t / dec) * Math.sin(w * i);
+    // stop each partial once its envelope is inaudible — the upper partials
+    // die in a fraction of the buffer, so most of the work disappears
+    const audibleFor = Math.min(len, Math.ceil(dec * Math.log(g0 / 0.0002) * sr));
+    const decayStep = Math.exp(-1 / (dec * sr));
+    let env = g0;
+    for (let i = 0; i < audibleFor; i++) {
+      data[i] += env * Math.sin(w * i);
+      env *= decayStep;
     }
   }
   // hammer thump: a few ms of soft filtered noise at the very front
