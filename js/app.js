@@ -181,6 +181,7 @@ RENDER.landing = () => `
           <button class="btn big c-blue" data-act="demo"><span class="btnmain">ride a demo brand</span><span class="btnsub">three brands, already played</span></button>
           <button class="btn big c-gold" data-act="notes"><span class="btnmain">field notes</span><span class="btnsub">how the map works</span></button>
         </div>
+        <p class="credit">a study by <strong>Clyde Zhang</strong> · <a href="mailto:clyde.duduo.zhang@gmail.com">clyde.duduo.zhang@gmail.com</a></p>
       </div>
       <div class="teaserwrap">
         ${teaserSVG()}

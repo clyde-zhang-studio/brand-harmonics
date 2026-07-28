@@ -100,6 +100,12 @@ body {
 .sc3 { top: 38%; right: -4%; transform: rotate(3deg); background: var(--card); color: var(--red-d); }
 .teasecap { font-size: .66rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
   color: var(--ink-soft); text-align: center; margin-top: .8em; }
+.credit { margin-top: 2.2em; font-size: .8rem; font-weight: 600; letter-spacing: .04em; color: var(--ink-soft); }
+.credit strong { color: var(--ink); font-weight: 700; }
+.credit a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px;
+  text-underline-offset: 3px; text-decoration-color: var(--gold); }
+.credit a:hover { color: var(--red-d); text-decoration-color: var(--red-d); }
+.credit a:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 3px; }
 
 /* ---- panels ---- */
 .panel { background: var(--card); border: 2.5px solid var(--ink); border-radius: 10px;
