@@ -1,0 +1,2892 @@
+<meta charset="UTF-8" />
+<title>harmonics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+/* =====================================================================
+   harmonics — visual system v2: the collage cut.
+   Bright paper, cut-out color blocks, hard shadows, staff lines as a
+   running motif — after the Vox/Earworm school of music explainers.
+   The serif italic display (the user's favorite) stays.
+   ===================================================================== */
+
+:root {
+  --paper: #f5ecd7;
+  --card: #fffdf4;
+  --ink: #241b10;
+  --ink-soft: rgba(36, 27, 16, .62);
+  --ink-faint: rgba(36, 27, 16, .28);
+  --red: #e8402a;
+  --blue: #2c53c9;
+  --gold: #f0ad1f;
+  --teal: #159f87;
+  --red-d: #c22c14;
+  --blue-d: #1e3da6;
+  --gold-d: #a97a08;
+  --teal-d: #0d7a66;
+  --cream-text: #fff8ec;
+  --shadow: 3px 3px 0 var(--ink);
+  --shadow-lg: 6px 6px 0 var(--ink);
+  --staff: repeating-linear-gradient(to bottom, var(--ink-faint) 0 1px, transparent 1px 4px);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { background: var(--paper); }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- the collage backdrop: color blocks + staff ribbons ---- */
+#haze { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; opacity: .13; border-radius: 0; filter: none; mix-blend-mode: normal; }
+.b1 { width: 44vw; height: 30vw; right: -10vw; top: -6vw;  background: var(--gold); transform: rotate(-7deg); }
+.b2 { width: 36vw; height: 26vw; left: -9vw; bottom: 8vh;  background: var(--teal); transform: rotate(4deg); }
+.b3 { width: 22vw; height: 30vw; left: -6vw; top: 14vh;    background: var(--red); transform: rotate(-3deg); opacity: .1; }
+.b4 { width: 30vw; height: 20vw; right: -8vw; bottom: -6vw; background: var(--blue); transform: rotate(6deg); opacity: .1; }
+#haze::before, #haze::after {
+  content: ''; position: absolute; left: -15%; width: 130%; height: 17px;
+  background: var(--staff); opacity: .55;
+}
+#haze::before { top: 13%; transform: rotate(-3.5deg); }
+#haze::after { bottom: 16%; transform: rotate(2.5deg); }
+
+#vignette { display: none; }
+#grain { position: fixed; inset: 0; z-index: 30; pointer-events: none; opacity: .06; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* ---- stage ---- */
+#stage { position: relative; z-index: 10; max-width: 1020px; margin: 0 auto; padding: 6vh 24px 12vh;
+  transition: opacity .24s ease, transform .24s ease; }
+#stage.leaving { opacity: 0; transform: translateY(8px); }
+
+/* ---- type ---- */
+.title { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-style: italic;
+  font-size: clamp(3.2rem, 9vw, 5.8rem); letter-spacing: .02em; margin: .05em 0 .25em; color: var(--ink);
+  text-wrap: balance; }
+.overline { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--ink); background: var(--gold); padding: .45em 1em;
+  transform: rotate(-.8deg); margin: 0 0 1.1em; box-shadow: 2px 2px 0 var(--ink); }
+.h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-style: italic;
+  font-size: clamp(1.8rem, 4.4vw, 2.7rem); letter-spacing: .01em; margin: 0 0 .45em; color: var(--ink);
+  text-wrap: balance; }
+.h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-style: italic;
+  font-size: 1.55rem; margin: 2.1em 0 .5em; color: var(--ink); }
+.h3::before { content: '♪'; font-style: normal; color: var(--red); margin-right: .45em; font-size: .85em; }
+.lede { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+  font-weight: 500; line-height: 1.55; color: var(--ink); max-width: 34em; margin: 0 0 .9em; }
+.body { font-size: .93rem; line-height: 1.75; color: var(--ink); opacity: .88; max-width: 46em; margin: .45em 0; }
+.body strong { font-weight: 700; }
+.hint { font-size: .78rem; color: var(--ink-soft); }
+.posnote { font-size: .78rem; color: var(--ink-soft); font-style: normal; }
+
+/* ---- hero ---- */
+.hero { padding-top: 4vh; }
+.herogrid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center; }
+.teaserwrap { position: relative; }
+.teaser { width: 100%; height: auto; }
+.teaser .tring { animation: teasespin 40s linear infinite; transform-origin: 170px 170px; }
+@keyframes teasespin { to { transform: rotate(360deg); } }
+.stickerchord { position: absolute; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.25rem;
+  background: var(--card); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+  padding: .15em .55em; border-radius: 4px; }
+.sc1 { top: -4%; right: 6%; transform: rotate(6deg); background: var(--gold); }
+.sc2 { bottom: 16%; left: -3%; transform: rotate(-5deg); }
+.sc3 { top: 38%; right: -4%; transform: rotate(3deg); background: var(--card); color: var(--red-d); }
+.teasecap { font-size: .66rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-soft); text-align: center; margin-top: .8em; }
+
+/* ---- panels ---- */
+.panel { background: var(--card); border: 2.5px solid var(--ink); border-radius: 10px;
+  padding: clamp(24px, 5vw, 52px); box-shadow: var(--shadow-lg); }
+.panel.narrow { max-width: 780px; margin: 0 auto; }
+
+/* ---- buttons: sticker school ---- */
+.btn { font-family: inherit; font-weight: 700; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink); background: var(--card); border: 2.5px solid var(--ink); border-radius: 7px;
+  padding: .85em 1.5em; cursor: pointer; box-shadow: var(--shadow);
+  transition: transform .12s ease, box-shadow .12s ease; }
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+.btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.btn.primary { background: var(--red); color: var(--cream-text); }
+.btn.ghost { background: transparent; border-color: transparent; box-shadow: none; text-decoration: underline;
+  text-decoration-thickness: 2px; text-underline-offset: 4px; padding-left: .4em; padding-right: .4em; }
+.btn.ghost:hover { transform: none; color: var(--red-d); }
+.btn.small { font-size: .62rem; padding: .6em 1.1em; box-shadow: 2px 2px 0 var(--ink); }
+.btn.big { display: flex; flex-direction: column; align-items: flex-start; gap: .3em;
+  padding: 1.05em 1.5em; border-radius: 9px; box-shadow: 5px 5px 0 var(--ink); text-align: left; }
+.btn.c-red { background: var(--red); color: var(--cream-text); transform: rotate(-1deg); }
+.btn.c-blue { background: var(--blue); color: var(--cream-text); transform: rotate(.7deg); }
+.btn.c-gold { background: var(--gold); color: var(--ink); transform: rotate(-.5deg); }
+.btn.big:hover { transform: translate(-1px, -2px) rotate(0deg); box-shadow: 6px 6px 0 var(--ink); }
+.btnmain { font-size: .92rem; letter-spacing: .06em; }
+.btnsub { font-weight: 600; font-size: .6rem; letter-spacing: .08em; text-transform: none; opacity: .85; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 2.2em; align-items: center; }
+.btnrow.tight { margin-top: 1.2em; }
+
+.backlink { margin-top: 2.4em; }
+.backlink a { color: var(--ink-soft); font-size: .78rem; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.backlink a:hover { color: var(--red-d); }
+
+/* ---- setup ---- */
+.namerow { display: flex; gap: 16px; flex-wrap: wrap; margin: 1.6em 0 2.4em; }
+.input { flex: 1 1 240px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.35rem; font-style: italic;
+  color: var(--ink); background: var(--card); border: 2.5px solid var(--ink); border-radius: 8px;
+  padding: .5em .9em; outline: none; box-shadow: var(--shadow); transition: border-color .2s; }
+.input:focus { border-color: var(--red); }
+.input::placeholder { color: var(--ink-faint); }
+
+.ruleline { display: flex; align-items: center; gap: 1em; color: var(--ink-soft);
+  font-size: .68rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; margin: 2em 0 1.2em; }
+.ruleline::before, .ruleline::after { content: ''; flex: 1; height: 17px; background: var(--staff); opacity: .7; }
+
+.presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.preset { text-align: left; display: flex; flex-direction: column; gap: .5em; cursor: pointer;
+  background: var(--card); border: 2.5px solid var(--ink); border-radius: 9px; padding: 18px 20px;
+  color: inherit; font-family: inherit; box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s; }
+.preset:nth-child(odd) { transform: rotate(-.7deg); }
+.preset:nth-child(even) { transform: rotate(.6deg); }
+.preset:hover { transform: translate(-1px, -2px) rotate(0deg); box-shadow: 5px 5px 0 var(--ink); }
+.pname { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.35rem; font-style: italic; color: var(--ink); }
+.psector { font-size: .64rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+.pblurb { font-size: .82rem; line-height: 1.6; color: var(--ink); opacity: .8; }
+.pgo { font-size: .66rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--red-d); margin-top: .4em; }
+
+/* ---- assessment ---- */
+.progress { display: flex; gap: 22px; margin-bottom: 2.2em; flex-wrap: wrap; }
+.pgroup { display: flex; gap: 7px; opacity: .38; position: relative; padding: 8px 6px; transition: opacity .3s; }
+.pgroup.now { opacity: 1; }
+.pgroup::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 17px;
+  transform: translateY(-56%); background: var(--staff); }
+.dot { width: 7px; height: 6px; border-radius: 50%; background: transparent; border: 1.5px solid var(--ink);
+  position: relative; z-index: 1; transition: background .25s; }
+.dot.done { background: var(--ink); }
+.dot.here { background: var(--red); border-color: var(--red-d); }
+.dot.here::after { content: ''; position: absolute; right: -1.5px; bottom: 3px; width: 1.5px; height: 12px; background: var(--red-d); }
+
+.lensprompt { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.2rem;
+  color: var(--ink-soft); margin: 0 0 2em; }
+.axisname { display: inline-block; font-size: .64rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--cream-text); background: var(--blue); padding: .4em .9em; transform: rotate(-.5deg);
+  box-shadow: 2px 2px 0 var(--ink); margin: 0 0 1.4em; }
+
+.pair { display: flex; gap: 18px; align-items: stretch; margin-bottom: 1.6em; }
+.statement { flex: 1; background: var(--card); border: 2.5px solid var(--ink); border-radius: 8px;
+  padding: 22px 24px; display: flex; align-items: center; box-shadow: var(--shadow); }
+.statement:first-child { transform: rotate(-.5deg); }
+.statement:last-of-type { transform: rotate(.5deg); }
+.statement p { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.3rem; line-height: 1.45;
+  margin: 0; color: var(--ink); }
+.vs { align-self: center; font-size: .64rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+
+.choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.choices.stacked { grid-template-columns: 1fr; max-width: 560px; }
+.choice { border-radius: 7px; font-size: .64rem; padding: .9em .5em; }
+.choice.wide { text-align: left; padding: 1em 1.3em; text-transform: none; font-weight: 600; font-size: .8rem; letter-spacing: .02em; }
+.choice.picked { background: var(--gold); }
+
+/* ---- reading: square + position cards ---- */
+.gsquare { width: 100%; height: auto; margin: 1.6em 0; }
+.gsquare .rel { stroke: var(--ink); stroke-opacity: .65; stroke-width: 1.6; }
+.gsquare .contraries { stroke-width: 2.4; stroke-opacity: .9; }
+.gsquare .subcontraries { stroke-dasharray: 6 6; }
+.gsquare .contradiction { stroke-dasharray: 1.5 6; stroke-opacity: .35; }
+.gsquare .relcap { fill: var(--ink-soft); font-size: 12px; font-weight: 600; text-anchor: middle; letter-spacing: .14em; text-transform: uppercase; }
+.gsquare .cterm { fill: var(--ink); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 29px; font-style: italic; }
+.gsquare .csub { fill: var(--ink-soft); font-size: 12.5px; font-weight: 600; letter-spacing: .04em; }
+.gsquare .orblabel { font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; text-anchor: middle; }
+.orbdot { stroke: var(--ink); stroke-width: 2.2; }
+.minorring { fill: none; stroke-width: 1.6; stroke-dasharray: 3 4; }
+
+.poscards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 1em; }
+.poscard { border: 2.5px solid var(--ink); border-top: 8px solid var(--c); border-radius: 8px;
+  padding: 18px 20px; background: var(--card); box-shadow: var(--shadow); }
+.poscard:nth-child(odd) { transform: rotate(-.4deg); }
+.poscard:nth-child(even) { transform: rotate(.4deg); }
+.poslens { font-size: .62rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 .5em; }
+.posarch { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.4rem; margin: 0 0 .3em; color: var(--ink); }
+.minornote { font-size: .78rem; line-height: 1.6; color: var(--blue-d); margin: .6em 0 0; }
+
+/* ---- sound: wheel + gaps ---- */
+.wheel { width: min(92vw, 640px); height: auto; display: block; margin: 1.5em auto; }
+.wheel .ring { fill: none; stroke: var(--ink); stroke-opacity: .55; stroke-width: 1.8; }
+.wheel .quadarc { fill: none; stroke-width: 26; stroke-linecap: round; }
+.wheel .tick { fill: var(--ink); }
+.wheel .keylabel { fill: var(--ink); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; text-anchor: middle; }
+.wheel .archlabel { fill: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; text-anchor: middle; }
+.wheel .node.dim { opacity: .3; }
+.wheel .gapchord { fill: none; stroke-width: 2.6; stroke-opacity: .9; transition: stroke-width .25s; }
+.wheel .gapchord:hover, .wheel .gapchord.hot { stroke-width: 4.5; }
+.wheel .journeyarc { fill: none; stroke: var(--red); stroke-width: 4.5; stroke-linecap: round; }
+.wheel .flow { stroke-dasharray: 10 8; animation: flowdash 2.2s linear infinite; }
+@keyframes flowdash { to { stroke-dashoffset: -36; } }
+
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 1.2em 0 0; }
+.chip { display: inline-flex; align-items: center; gap: .55em; font-family: inherit; font-size: .68rem;
+  font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+  background: var(--card); border: 2px solid var(--ink); border-radius: 999px; padding: .55em 1.1em;
+  cursor: pointer; box-shadow: 2px 2px 0 var(--ink); transition: transform .12s; }
+.chip:hover { transform: translate(-1px, -1px); }
+.swatch { width: 10px; height: 10px; border-radius: 50%; background: var(--c); border: 1.5px solid var(--ink); }
+.playglyph { color: var(--red-d); font-size: .7rem; }
+
+.nowcard { display: flex; gap: 20px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  border: 2.5px solid var(--ink); background: rgba(240, 173, 31, .22); border-radius: 9px;
+  padding: 20px 24px; margin: 1.4em 0 2em; box-shadow: var(--shadow); transform: rotate(-.3deg); }
+.nowcard .posarch { margin-bottom: .2em; }
+
+.gaplist { display: flex; flex-direction: column; gap: 16px; }
+.gaprow { border: 2.5px solid var(--ink); border-radius: 8px; padding: 18px 22px;
+  background: var(--card); box-shadow: var(--shadow); }
+.gaprow.governing { border-color: var(--red-d); border-width: 3px; background: rgba(232, 64, 42, .07); }
+.gaphead { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; flex-wrap: wrap; }
+.gapname { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.3rem; color: var(--ink); }
+.govbadge { font-family: 'Inter', sans-serif; font-style: normal; font-size: .56rem; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--cream-text); background: var(--red); border-radius: 4px;
+  padding: .4em .8em; margin-left: 1em; vertical-align: middle; box-shadow: 2px 2px 0 var(--ink); }
+.gapkeys { font-size: .8rem; font-weight: 700; letter-spacing: .06em; margin: .5em 0 .1em; }
+.gapq { font-style: italic; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.08rem;
+  color: var(--ink-soft); margin: .2em 0 .4em; }
+
+/* ---- movement ---- */
+.phase { border: 2.5px solid var(--ink); border-radius: 9px; padding: 22px 26px;
+  background: var(--card); margin: 16px 0; box-shadow: var(--shadow); }
+.phase.summary { background: rgba(44, 83, 201, .07); }
+.cadencecard { background: rgba(240, 173, 31, .16); }
+.phasename { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.4rem; margin: 0 0 .4em; color: var(--ink); }
+.pivotline { display: inline-block; font-size: .64rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--cream-text); background: var(--teal); padding: .35em .8em; box-shadow: 2px 2px 0 var(--ink);
+  transform: rotate(-.4deg); margin: 0 0 .8em; }
+.chordline { margin-top: 1em; display: flex; flex-wrap: wrap; gap: .6em; }
+.chordtok { display: inline-flex; flex-direction: column; align-items: center;
+  font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.3rem; color: var(--ink);
+  background: var(--card); border: 2px solid var(--ink); border-radius: 6px; padding: .25em .6em .35em;
+  box-shadow: 2px 2px 0 var(--ink); }
+.chordtok:nth-child(odd) { transform: rotate(-1deg); }
+.chordtok:nth-child(even) { transform: rotate(.8deg); }
+.chordtok i { font-size: .58rem; font-style: normal; font-weight: 700; letter-spacing: .1em; color: var(--ink-soft);
+  font-family: 'Inter', sans-serif; margin-top: .25em; text-transform: uppercase; }
+.pivotgloss { font-size: .83rem; color: var(--ink-soft); }
+
+/* ---- the brief: lead sheet ---- */
+.sheet { display: flex; flex-wrap: wrap; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+  margin: 1.8em 0 1em; background: var(--card);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 10px, var(--ink-faint) 10px 11px);
+  background-size: 100% 55px; background-repeat: repeat-x; background-position: 0 16px; }
+.measure { flex: 1 0 150px; min-height: 124px; border-right: 2px solid var(--ink);
+  padding: 14px 14px 12px; display: flex; flex-direction: column; gap: .3em; transition: background .25s; }
+.measure:first-child { border-left: 6px double var(--ink); }
+.measure:last-child { border-right: 6px double var(--ink); }
+.measure.playing { background: rgba(240, 173, 31, .35); }
+.chordsym { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2rem; color: var(--ink); line-height: 1.1; }
+.roman { font-size: .6rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
+.roman i { font-style: normal; opacity: .8; }
+.barnote { font-size: .72rem; font-weight: 600; line-height: 1.5; color: var(--gold-d); margin-top: auto; }
+.measure.bridge .barnote { color: var(--teal-d); }
+.measure.turn .barnote { color: var(--blue-d); }
+.measure.cadence .barnote { color: var(--red-d); }
+
+/* ---- the possible futures ---- */
+.futures { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; margin: 1.6em 0 1em; }
+.movecard { border: 2.5px solid var(--ink); border-radius: 9px; padding: 20px 22px;
+  background: var(--card); display: flex; flex-direction: column; gap: .4em; box-shadow: var(--shadow-lg);
+  transition: transform .15s, box-shadow .15s; }
+.movecard:nth-child(odd) { transform: rotate(-.6deg); }
+.movecard:nth-child(even) { transform: rotate(.5deg); }
+.movecard:hover { transform: translate(-1px, -2px) rotate(0deg); box-shadow: 7px 7px 0 var(--ink); }
+.movecard.stated { border-color: var(--blue-d); border-width: 3px; background: rgba(44, 83, 201, .06); }
+.movecard.offmenu { border-style: dashed; }
+.movehead { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; }
+.movetitle { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.6rem; color: var(--ink); }
+.movemech { font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); text-align: right; }
+.movedest { font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--red-d); margin: 0; }
+.statedbadge { font-size: .54rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--cream-text);
+  background: var(--blue); border-radius: 4px; padding: .35em .7em; margin-left: .8em; vertical-align: middle;
+  box-shadow: 2px 2px 0 var(--ink); }
+.chiprow { display: flex; flex-wrap: wrap; gap: 8px; margin: .5em 0 .3em; }
+.meterchip { display: inline-flex; align-items: center; gap: .45em; font-size: .62rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--ink); border: 2px solid var(--ink);
+  border-radius: 999px; padding: .35em .8em; background: var(--card); }
+.meterchip i { width: 8px; height: 8px; border-radius: 50%; background: var(--mc); border: 1.5px solid var(--ink); }
+.movecard .btnrow { margin-top: auto; }
+.alsoran { border: 2px dashed var(--ink); border-radius: 8px; padding: 14px 20px; margin-top: 1.2em;
+  background: rgba(36, 27, 16, .03); font-size: .88rem; }
+.alsoran a { color: var(--blue-d); font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- the brief: moves playbook ---- */
+.roadmap { display: flex; flex-direction: column; gap: 16px; }
+.roadrow { display: grid; grid-template-columns: 96px 1fr; gap: 20px; padding: 18px 20px;
+  border: 2.5px solid var(--ink); border-radius: 8px; background: var(--card); box-shadow: var(--shadow); }
+.roadwhen { font-size: .62rem; font-weight: 700; letter-spacing: .2em; color: var(--cream-text); text-transform: uppercase;
+  background: var(--red); align-self: start; justify-self: start; padding: .5em .8em; transform: rotate(-2deg);
+  box-shadow: 2px 2px 0 var(--ink); }
+.roadrow:nth-child(2) .roadwhen { background: var(--blue); }
+.roadrow:nth-child(3) .roadwhen { background: var(--teal); }
+.roadtitle { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.35rem; color: var(--ink); margin: 0 0 .2em; }
+.whyline { font-size: .9rem; line-height: 1.7; margin: .3em 0 .5em; }
+.dolist { margin: .3em 0 .5em; padding-left: 1.2em; }
+.dolist li { font-size: .88rem; line-height: 1.65; margin-bottom: .45em; }
+.signal { font-size: .85rem; font-weight: 600; color: var(--teal-d); margin: .4em 0 .2em; }
+.musicnote { font-size: .76rem; color: var(--ink-soft); font-style: italic; margin: .3em 0 0; }
+
+.saynot { display: flex; flex-direction: column; gap: 12px; margin: .6em 0 1em; }
+.sayrow { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; border: 2.5px solid var(--ink);
+  border-radius: 8px; padding: 14px 18px; background: var(--card); box-shadow: var(--shadow); }
+.sayrow:nth-child(odd) { transform: rotate(-.3deg); }
+.sayrow:nth-child(even) { transform: rotate(.3deg); }
+.saydo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.15rem; color: var(--teal-d); margin: 0; }
+.saynotp { font-size: .84rem; color: var(--red-d); margin: 0; align-self: center; text-decoration: line-through;
+  text-decoration-color: rgba(232, 64, 42, .55); }
+.specbullets { margin: .4em 0 0; padding-left: 1.1em; max-width: 46em; }
+.specbullets li { font-size: .88rem; line-height: 1.7; margin-bottom: .55em; }
+.specbullets li::marker { color: var(--red-d); }
+
+.keepshadow { border-top: 3px solid var(--ink); margin-top: 1.6em; padding-top: 1em; }
+.printfoot { display: none; }
+
+/* ---- field notes ---- */
+.maptable { display: flex; flex-direction: column; margin-top: 1em; }
+.maprow { display: grid; grid-template-columns: 56px 210px 1fr; gap: 18px; padding: 14px 0;
+  border-bottom: 2px solid var(--ink-faint); }
+.mkey { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.6rem; color: var(--red-d); }
+.mname { font-size: .82rem; font-weight: 700; color: var(--ink); padding-top: .35em; }
+.mname i { display: block; font-style: italic; font-weight: 400; color: var(--ink-soft); font-size: .78rem; margin-top: .2em; }
+.mlore { font-size: .82rem; line-height: 1.7; color: var(--ink); opacity: .85; }
+
+/* ---- liveliness: paste-down reveals & performance cues ---- */
+.reveal { opacity: 0; translate: 0 18px; transition: opacity .5s ease, translate .55s cubic-bezier(.2, .8, .3, 1.04); }
+.reveal.pasted { opacity: 1; translate: 0 0; }
+.measure:hover { background: rgba(240, 173, 31, .16); }
+.measure.playing { position: relative; }
+.measure.playing::after { content: '♪'; position: absolute; top: 6px; right: 9px; color: var(--red-d);
+  font-size: 1.05rem; animation: notebounce .5s ease-in-out infinite alternate; }
+@keyframes notebounce { from { translate: 0 0; } to { translate: 0 -6px; } }
+.stickerchord:hover { animation: wiggle .45s ease-in-out; }
+@keyframes wiggle { 25% { rotate: 2.5deg; } 75% { rotate: -2.5deg; } }
+
+/* ---- responsive ---- */
+@media (max-width: 860px) {
+  .herogrid { grid-template-columns: 1fr; }
+  .teaserwrap { max-width: 420px; margin: 0 auto; }
+}
+@media (max-width: 720px) {
+  .pair { flex-direction: column; }
+  .vs { align-self: flex-start; }
+  .choices { grid-template-columns: 1fr 1fr; }
+  .maprow { grid-template-columns: 48px 1fr; }
+  .mlore { grid-column: 1 / -1; }
+  .sayrow { grid-template-columns: 1fr; gap: 6px; }
+  .roadrow { grid-template-columns: 1fr; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow, .teaser .tring, .measure.playing::after, .stickerchord { animation: none !important; }
+  #stage, .btn, .movecard, .preset { transition: none; }
+  .reveal { opacity: 1; translate: none; transition: none; }
+}
+
+/* ---- print: the brief as a takeaway document ---- */
+@media print {
+  body { background: #fff; }
+  #haze, #grain, #vignette { display: none; }
+  #stage { max-width: 100%; padding: 0; }
+  .panel, .movecard, .roadrow, .sayrow, .gaprow, .phase, .preset { box-shadow: none; }
+  .btn, .btnrow, .backlink { display: none !important; }
+  .overline, .roadwhen, .pivotline, .axisname { box-shadow: none; }
+  .printfoot { display: block; margin-top: 3em; font-size: .64rem; font-weight: 700; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--ink-soft); }
+}
+
+</style>
+<div id="haze" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+</div>
+<div id="vignette" aria-hidden="true"></div>
+<div id="grain" aria-hidden="true"></div>
+<main id="stage" aria-live="polite"></main>
+<script>
+/* ══════ data.js ══════ */
+/* =====================================================================
+   data.js — the theory of the piece, written down.
+
+   Twelve archetypes mapped onto the twelve keys of the circle of
+   fifths. The mapping is designed, not decorative: adjacency on the
+   circle = kinship of meaning; the tritone (opposite point) = each
+   archetype's true contrary. Key "characters" are cultural codes
+   (Schubart 1806, folk practice, Romantic usage) — chosen and cited,
+   the way a semiotician chooses a code and says so.
+   ===================================================================== */
+
+/* ---- the wheel ----------------------------------------------------
+   index = position on the circle of fifths, clockwise from C.
+   Read around the ring and it tells a cycle:
+   purity → wandering → belonging → desire → play → mastery →
+   transgression → transformation → creation → care → order →
+   wisdom → and wisdom simplifies back into purity.               */
+
+const ARCHETYPES = [
+  {
+    id: 'innocent', name: 'The Innocent', epithet: 'the open chord',
+    key: 'C', keyLabel: 'C major', accidentals: 'no sharps, no flats',
+    value: 'Purity',
+    essence: 'Believes the good thing is simple, and the simple thing is good.',
+    drive: 'safety through simplicity; a world that keeps its promises',
+    gift: 'clarity, trust, morning light',
+    shadow: 'denial — simplicity maintained by refusing to know things',
+    keyLore:
+      'Schubart (1806) called C major "completely pure — innocence, simplicity, naïveté." A key with nothing to hide and nothing added: every note on the white keys. The Innocent is the brand equivalent: no accidentals.',
+    chord: { suffix: '', notes: [0, 4, 7, 12], gloss: 'a plain triad with the octave — nothing hidden, nothing withheld' },
+    audienceLine: 'They reward brands that make life feel safe, legible and light. Complication reads as deceit.',
+    imageLine: 'People describe it as wholesome, clean, a little naive — the brand equivalent of a white t-shirt.',
+    aspirationLine: 'Becoming the Innocent means subtraction as strategy: fewer promises, kept absolutely.',
+    design: {
+      voice: ['Short declarative sentences; no subordinate clauses doing secret work.', 'Say the price, the ingredient, the catch — first, not in footnotes.', 'Warmth without irony; irony is experience, and the Innocent has none.'],
+      aesthetic: ['White space as a material, not a gap. Daylight palettes, unmixed color.', 'One typeface, generous size, nothing condensed.', 'Photography in natural light; no dramatic grading.'],
+      behavior: ['Default settings are the honest settings.', 'Remove one step from every flow each quarter.', 'Never make forgiveness a feature tier: returns, refunds, do-overs are free.'],
+    },
+  },
+  {
+    id: 'explorer', name: 'The Explorer', epithet: 'one note past the horizon',
+    key: 'G', keyLabel: 'G major', accidentals: 'one sharp',
+    value: 'Discovery',
+    essence: 'Believes the self is found on the far side of the fence.',
+    drive: 'freedom, unfenced ground, the next ridge',
+    shadow: 'aimlessness — motion mistaken for meaning',
+    gift: 'independence, appetite, fresh air',
+    keyLore:
+      'Schubart heard G major as "everything rustic and idyllic" — the outdoors key. It is C with one sharp: the Innocent’s world plus a single raised note, which is exactly what a horizon is.',
+    chord: { suffix: 'add9', notes: [0, 4, 7, 14], gloss: 'a triad with the ninth added — one tone reaching past the chord’s edge' },
+    audienceLine: 'They reward brands that equip rather than instruct, and despise anything that fences them in.',
+    imageLine: 'People describe it as restless, outdoorsy, a little solitary — gear for lives other people wish they led.',
+    aspirationLine: 'Becoming the Explorer means selling the door, not the room: every touchpoint points outward.',
+    design: {
+      voice: ['Second person, present tense: you, now, out there.', 'Name real places and real weather; abstraction is a wall.', 'Invitations, never itineraries.'],
+      aesthetic: ['Horizon lines in layout: low anchors, tall skies of space.', 'Terrain palettes — slate, moss, dust — with one signal color like a tent on a hillside.', 'Maps, marks and waypoints as a graphic language.'],
+      behavior: ['Build for offline, for edges, for weak signal — literally and figuratively.', 'Reward leaving the app / store / feed; the brand is a trailhead, not a destination.', 'Ship tools that work without accounts.'],
+    },
+  },
+  {
+    id: 'everyman', name: 'The Everyman', epithet: 'the session key',
+    key: 'D', keyLabel: 'D major', accidentals: 'two sharps',
+    value: 'Belonging',
+    essence: 'Believes ordinary life, done together, is the whole point.',
+    drive: 'to belong without auditioning',
+    gift: 'solidarity, plainness, the common table',
+    shadow: 'facelessness — belonging bought by sanding off every edge',
+    keyLore:
+      'D major is the folk session key — the key of open fiddle strings, barn dances and pub singalongs, playable by anyone who shows up. (Schubart heard triumph in D; we side with the fiddlers. Key characters are codes, and we choose the folk code — the methodology says why.)',
+    chord: { suffix: '(open)', notes: [0, 7, 12, 16], gloss: 'root, fifth, octave, third — the open-string voicing anyone’s hands can find' },
+    audienceLine: 'They reward brands that respect their money and their intelligence, and distrust anything that smells of velvet rope.',
+    imageLine: 'People describe it as decent, dependable, unremarkable — furniture of ordinary life.',
+    aspirationLine: 'Becoming the Everyman means the courage to be plain: no mystique, just reliability with manners.',
+    design: {
+      voice: ['Words your neighbor uses; if a sentence would sound odd said across a fence, cut it.', 'Humor that laughs with, never at.', 'Price talk is plain talk — no "investment," no "curation."'],
+      aesthetic: ['Sturdy grids, medium weights, nothing precious.', 'Colors from the hardware store and the kitchen, not the runway.', 'Real people at real angles; retouch nothing but red-eye.'],
+      behavior: ['One fair price; loyalty means the deal gets better, not the pitch.', 'Design every flow for the busiest week of a normal life.', 'Support answered by humans who are allowed to say sorry.'],
+    },
+  },
+  {
+    id: 'lover', name: 'The Lover', epithet: 'the leaning interval',
+    key: 'A', keyLabel: 'A major', accidentals: 'three sharps',
+    value: 'Desire',
+    essence: 'Believes attention is the rarest gift, and gives it entirely.',
+    drive: 'closeness, beauty, being chosen',
+    gift: 'intimacy, sensuous intelligence, devotion to the particular',
+    shadow: 'need — desire that grips instead of beholds',
+    keyLore:
+      'Schubart: A major is the key of "declarations of innocent love … hope of seeing one’s beloved again." The tender-bright key, three sharps in: far enough from plain C to feel like candlelight.',
+    chord: { suffix: 'maj7', notes: [0, 4, 7, 11], gloss: 'the major seventh — the interval that leans in and does not resolve, because it does not want to leave' },
+    audienceLine: 'They reward brands that notice details about them, and punish anything generic as a small betrayal.',
+    imageLine: 'People describe it as gorgeous, sensory, a little much — you remember how it felt, not what it said.',
+    aspirationLine: 'Becoming the Lover means choosing fewer people and adoring them: depth of attention as the moat.',
+    design: {
+      voice: ['Write to one person, never to a segment.', 'Sensory verbs — warm, hold, taste — over evaluative ones — premium, elevated.', 'Silence is a register: the Lover does not fill every pause.'],
+      aesthetic: ['Materials first: texture, weight, grain, finish — even on screens.', 'Deep warm palettes; light like late afternoon.', 'Close crops and shallow focus; the beloved fills the frame.'],
+      behavior: ['Remember preferences without being asked twice.', 'Unbox, onboard and greet as rituals, not steps.', 'Anniversaries over acquisitions: mark time spent together.'],
+    },
+  },
+  {
+    id: 'jester', name: 'The Jester', epithet: 'the grace note',
+    key: 'E', keyLabel: 'E major', accidentals: 'four sharps',
+    value: 'Play',
+    essence: 'Believes nothing true was ever said with a straight face.',
+    drive: 'joy now; the puncture of every inflated thing',
+    gift: 'levity, honesty smuggled in laughter, permission',
+    shadow: 'frivolity — the joke that dodges every consequence',
+    keyLore:
+      'Schubart: E major is "noisy shouts of joy, laughing pleasure." Four sharps of glitter. The Jester lives here, one bright step below the Hero — the dare before the deed.',
+    chord: { suffix: '6/9', notes: [0, 4, 9, 14], gloss: 'the six-nine chord — sweet, unresolved, grinning; jazz’s way of ending on a wink' },
+    audienceLine: 'They reward brands that refuse solemnity, and share anything that makes them look funny for finding it.',
+    imageLine: 'People describe it as the funny one — beloved, quoted, and suspected of being unserious.',
+    aspirationLine: 'Becoming the Jester means using laughter as a crowbar: the joke opens what the pitch cannot.',
+    design: {
+      voice: ['The joke lands only if the information does; comedy is a delivery mechanism, not a substitute.', 'Puncture yourself first — self-importance is the only forbidden register.', 'Timing over volume: one great line beats five loud ones.'],
+      aesthetic: ['Primary-adjacent colors with one deliberately wrong accent.', 'Type that can raise an eyebrow — but never more than one novelty face per surface.', 'Motion with comic timing: anticipation, snap, settle.'],
+      behavior: ['Hide one delightful, useless thing in every release.', 'Error states are stages: the 404 should be worth screenshotting.', 'Never gate the fun behind the funnel.'],
+    },
+  },
+  {
+    id: 'hero', name: 'The Hero', epithet: 'the arrival chord',
+    key: 'B', keyLabel: 'B major', accidentals: 'five sharps',
+    value: 'Action',
+    essence: 'Believes the world is improved by effort, and proof is a duty.',
+    drive: 'mastery demonstrated; the record broken',
+    gift: 'courage, discipline, the raised bar',
+    shadow: 'ruthlessness — winning that forgets what it was for',
+    keyLore:
+      'Schubart heard B major as "strongly coloured … wild passions." Five sharps — the brightest, most effortful key before the circle breaks over into flats. Everything about B major is earned.',
+    chord: { suffix: 'sus4 → maj', notes: [0, 5, 7, 12], resolveNotes: [0, 4, 7, 12], gloss: 'a suspension resolving to the triad — tension held, then the arrival; the Hero’s whole story in two chords' },
+    audienceLine: 'They reward brands that measure things and win things, and discard anything that flinches from a benchmark.',
+    imageLine: 'People describe it as intense, impressive, exhausting — the brand that turns everything into a personal best.',
+    aspirationLine: 'Becoming the Hero means publishing the scoreboard: name the enemy (the old way), post the numbers.',
+    design: {
+      voice: ['Verbs of work: build, lift, ship, hold. Adjectives must earn their place with a number.', 'Name the hard part out loud; ease is the competitor’s pitch.', 'Address the reader as capable — never coddle.'],
+      aesthetic: ['High contrast, hard edges, compressed type set tight.', 'One triumphal accent — gold, signal red — used like a medal, rarely.', 'Documentary grit over gloss: chalk dust, worn tools, real sweat.'],
+      behavior: ['Progress is always visible: streaks, deltas, personal records.', 'Make the product measurably better every cycle and publish the delta.', 'Celebrate user victories louder than product launches.'],
+    },
+  },
+  {
+    id: 'outlaw', name: 'The Outlaw', epithet: 'diabolus in musica',
+    key: 'F#', keyLabel: 'F# major', accidentals: 'six sharps — the far point',
+    value: 'Transgression',
+    essence: 'Believes every rule is a wall someone built to keep something for themselves.',
+    drive: 'to break what deserves breaking',
+    gift: 'liberation, honesty about power, voltage',
+    shadow: 'destruction for its own sake — the fire that forgets what it was clearing',
+    keyLore:
+      'F# sits a tritone from C — the interval medieval theorists shunned as diabolus in musica, the devil in the music: the exact far point from innocence. And yet Schubart heard F# major as "triumph over difficulty, the free sigh when hurdles are surmounted" — which is precisely the Outlaw’s promise: rules are hurdles.',
+    chord: { suffix: '7#9', notes: [0, 4, 10, 15], gloss: 'the Hendrix chord — a major and minor third sounding at once, the rulebook torn in half and both halves played' },
+    audienceLine: 'They reward brands that say the unsayable thing about the category, and can smell borrowed rebellion instantly.',
+    imageLine: 'People describe it as dangerous, thrilling or juvenile, depending on who is asked — nobody says "fine."',
+    aspirationLine: 'Becoming the Outlaw means picking the right enemy: transgression without a named injustice is just noise.',
+    design: {
+      voice: ['Name the racket: say plainly who profits from the way things are.', 'Short, kinetic, declarative. No hedging modifiers — "quite" is surrender.', 'Never punch down; the Outlaw’s license comes from punching up.'],
+      aesthetic: ['Break one design law per surface — grid, casing, margin — and obey the rest with discipline.', 'Black, plus one color at full voltage.', 'Xerox textures, torn edges, stencil and scrawl over polish.'],
+      behavior: ['Refuse a profitable industry norm in public — dark patterns, junk fees, fake urgency — and post the receipt.', 'Ship the feature the incumbents’ lawyers would veto.', 'Side with users against gatekeepers even when it costs quarterly.'],
+    },
+  },
+  {
+    id: 'magician', name: 'The Magician', epithet: 'the veil key',
+    key: 'Db', keyLabel: 'D♭ major', accidentals: 'five flats',
+    value: 'Transformation',
+    essence: 'Believes reality is a draft, and knows where the pen is.',
+    drive: 'to turn one thing into another; the moment of change itself',
+    gift: 'vision, catalysis, the shiver of the possible',
+    shadow: 'manipulation — transformation performed on people instead of for them',
+    keyLore:
+      'Schubart called D♭ "a leering key, degenerating into grief and rapture" — the twilight key, where one thing shades into another. Five flats deep: the world seen from inside the change.',
+    chord: { suffix: 'maj7#11', notes: [0, 4, 11, 18], gloss: 'a lydian shimmer — the raised eleventh, the note that isn’t supposed to be there, sounding like it always was' },
+    audienceLine: 'They reward brands that produce before-and-after gaps that feel physically impossible, and forgive opacity if the trick keeps working.',
+    imageLine: 'People describe it with the word "somehow" — nobody can quite explain it, which is either the appeal or the accusation.',
+    aspirationLine: 'Becoming the Magician means selling the transformation, never the mechanism — but rigging nothing.',
+    design: {
+      voice: ['Speak in before/after; the mechanism stays backstage, the outcome downstage.', 'Verbs of transmutation: turn, become, unlock — used precisely.', 'A register of calm certainty; wonder in the user’s mouth, not the brand’s.'],
+      aesthetic: ['Twilight palettes — indigo, violet, mercury — and gradients as a native material.', 'Reveals over statements: interfaces that draw back curtains.', 'Light as a substance: glow, refraction, aurora.'],
+      behavior: ['Compress the distance from intention to result until it feels like sleight of hand.', 'Stage one moment of astonishment in the first five minutes.', 'Power asymmetry is real: publish an ethics of what the trick will never do.'],
+    },
+  },
+  {
+    id: 'creator', name: 'The Creator', epithet: 'the dream key',
+    key: 'Ab', keyLabel: 'A♭ major', accidentals: 'four flats',
+    value: 'Originality',
+    essence: 'Believes the unmade thing is a debt owed to the world.',
+    drive: 'to give form; to see the inner thing exist outside',
+    gift: 'imagination, craft, standards no client asked for',
+    shadow: 'perfectionism — the work protected from the world by never finishing',
+    keyLore:
+      'A♭ is the key Romantic pianists reached for to write dreams down — Liszt’s Liebesträume, Chopin’s nocturnes. Schubart, darker, called it the key of the grave and eternity. Every maker knows the blank page is both.',
+    chord: { suffix: 'maj9', notes: [0, 4, 11, 14], gloss: 'a major ninth — the triad with its overtones composed in, the chord as a small finished work' },
+    audienceLine: 'They reward tools and objects that respect the work, and resent anything that treats making as content.',
+    imageLine: 'People describe it as the tasteful one — admired, imitated, occasionally accused of caring more about the object than the customer.',
+    aspirationLine: 'Becoming the Creator means the portfolio is the argument: ship fewer things, finish them completely.',
+    design: {
+      voice: ['Show the process — sketches, rejects, tolerances; craft narrated is craft proved.', 'Precision vocabulary: name the material, the method, the measurement.', 'No superlatives; let specificity do the bragging.'],
+      aesthetic: ['A visible system — grid, scale, tokens — worn like joinery, not hidden.', 'Studio palettes: paper, graphite, linen, one pigment.', 'The object photographed like sculpture: raking light, honest shadows.'],
+      behavior: ['Changelogs written like artist statements.', 'Expose the making: open files, specs, teardowns.', 'Sell the tool and the blank page together — every customer is treated as a maker.'],
+    },
+  },
+  {
+    id: 'caregiver', name: 'The Caregiver', epithet: 'the lullaby chord',
+    key: 'Eb', keyLabel: 'E♭ major', accidentals: 'three flats',
+    value: 'Devotion',
+    essence: 'Believes strength exists to be lent.',
+    drive: 'to protect, provision and hold',
+    gift: 'trustworthiness, patience, the made bed and the kept vigil',
+    shadow: 'smothering — help that quietly needs to be needed',
+    keyLore:
+      'Schubart: E♭ major is "the key of love, of devotion, of intimate conversation with God." Three flats, three of anything sacred. The warmest register of the flat side.',
+    chord: { suffix: '6', notes: [0, 4, 7, 9], gloss: 'the added sixth — the doo-wop lullaby ending, resolution softened so it can be leaned on' },
+    audienceLine: 'They reward brands that show up in the hard week, and never forgive being upsold at a vulnerable moment.',
+    imageLine: 'People describe it as kind, safe, maternal — and, when it slips, as hovering.',
+    aspirationLine: 'Becoming the Caregiver means designing for the worst day: the 3 a.m. version of every flow.',
+    design: {
+      voice: ['Reassure with specifics — what happens next, who is handling it, when.', 'The imperative mood is banned in hard moments; offer, never order.', 'Read every sentence as if to someone frightened; rewrite what fails.'],
+      aesthetic: ['Blanket palettes: wool, cream, dusk blue; contrast gentle but legible.', 'Rounded geometry that still looks competent — a nurse’s handwriting, not a nursery.', 'Illustration over photography where dignity is at risk.'],
+      behavior: ['The escalation path to a human is never more than one step.', 'Remember what they told you; asking twice is a small abandonment.', 'Build the unprofitable feature that only matters in emergencies.'],
+    },
+  },
+  {
+    id: 'ruler', name: 'The Ruler', epithet: 'the processional key',
+    key: 'Bb', keyLabel: 'B♭ major', accidentals: 'two flats',
+    value: 'Order',
+    essence: 'Believes chaos is a tax on everyone, and order is a gift you administer.',
+    drive: 'stewardship; the system that outlives its architect',
+    gift: 'stability, standards, the long view',
+    shadow: 'control — order maintained for the throne’s sake',
+    keyLore:
+      'B♭ is the processional key — the pitch of brass bands, anthems and state occasions; the instruments of ceremony are built in it. Schubart adds: "cheerful love, clear conscience, aspiration for a better world" — rule at its best.',
+    chord: { suffix: '', notes: [-12, 0, 7, 16], gloss: 'the triad over a doubled bass root — weight underneath, the chord as a foundation stone' },
+    audienceLine: 'They reward institutions that are boring in the right places, and defect at the first sign of improvisation with their stakes.',
+    imageLine: 'People describe it as established, authoritative, a little cold — the one you choose when it matters and complain about after.',
+    aspirationLine: 'Becoming the Ruler means acting like infrastructure: predictable, accountable, built for decades.',
+    design: {
+      voice: ['Institutional first person plural — we hold, we guarantee — backed by named accountability.', 'No exclamation marks; authority does not raise its voice.', 'Precision about obligations: what is promised, to whom, by when.'],
+      aesthetic: ['Symmetry, generous margins, capital letterforms with real serifs or none at all.', 'Civic palettes: navy, stone, forest, bronze.', 'Insignia over logo: a mark that could be carved.'],
+      behavior: ['Publish the standard you hold yourself to; invite audit.', 'Change slowly and announce early; surprise is a failure of governance.', 'Take responsibility upward — the institution absorbs blame, never deflects it.'],
+    },
+  },
+  {
+    id: 'sage', name: 'The Sage', epithet: 'the withheld third',
+    key: 'F', keyLabel: 'F major', accidentals: 'one flat',
+    value: 'Wisdom',
+    essence: 'Believes the truth, patiently found, is the only durable kindness.',
+    drive: 'understanding; the world made intelligible',
+    gift: 'judgment, calm, the long study',
+    shadow: 'detachment — knowing as a way of never touching',
+    keyLore:
+      'Schubart: F major is "complaisance and calm" — the pastoral key, one flat, one step of remove from plain C. Beethoven put the Pastoral symphony here: contemplation with its boots off. Note the wheel’s last move: the Sage sits beside the Innocent — wisdom, completed, simplifies back into clarity.',
+    chord: { suffix: '5(add9)', notes: [0, 7, 14, 19], gloss: 'open fifths with the ninth — a chord with the third withheld: conclusions left for you to draw' },
+    audienceLine: 'They reward being shown the working, and treat every unsupported claim as a small insult.',
+    imageLine: 'People describe it as credible, rigorous, slightly aloof — cited in arguments, forgotten at parties.',
+    aspirationLine: 'Becoming the Sage means teaching as marketing: publish what you know until the category thinks in your terms.',
+    design: {
+      voice: ['Claims arrive holding their evidence — data, method, margin of error.', 'Calm syntax; no urgency theater, no countdown clocks.', 'Concede counterarguments before the reader raises them.'],
+      aesthetic: ['Editorial typography: real hierarchy, footnotes treated as first-class.', 'Library palettes: ivory, ink, oxide green.', 'Diagrams as the hero image; a chart is worth a headline.'],
+      behavior: ['Publish the research, including the inconvenient result.', 'Explain every recommendation; "trust us" is never the interface.', 'Version your positions publicly and show what changed your mind.'],
+    },
+  },
+];
+
+const byId = Object.fromEntries(ARCHETYPES.map((a, i) => [a.id, { ...a, index: i }]));
+const indexOf = (id) => byId[id].index;
+
+/* ---- the four quadrants (contiguous arcs of three) --------------- */
+const QUADRANTS = [
+  { name: 'the open',  members: ['sage', 'innocent', 'explorer'], gloss: 'the independent registers — clarity, freedom, the horizon' },
+  { name: 'the near',  members: ['everyman', 'lover', 'jester'],  gloss: 'the registers of belonging — the table, the beloved, the laugh' },
+  { name: 'the forge', members: ['hero', 'outlaw', 'magician'],   gloss: 'the registers of force — effort, rupture, transmutation' },
+  { name: 'the keep',  members: ['creator', 'caregiver', 'ruler'],gloss: 'the registers of keeping — the made thing, the held person, the standing order' },
+];
+
+/* ---- the six oppositions (tritone pairs = semiotic contraries) ----
+   Each axis yields a semiotic square: S1 vs S2 (contraries),
+   ~S1 and ~S2 (their contradictories, the "not-" positions).      */
+
+const AXES = [
+  {
+    a: 'innocent', b: 'outlaw',
+    s1: 'Purity', s2: 'Transgression',
+    nots1: 'the knowing', nots2: 'the proper',
+    gloss: 'the unbroken thing vs. the deliberately broken one',
+    statements: {
+      identity:   ['We win by being the thing with nothing to hide.', 'We win by breaking a rule the category treats as sacred.'],
+      audience:   ['They want life made cleaner, lighter, safer.', 'They want someone to say the forbidden thing out loud.'],
+      image:      ['Outsiders call it wholesome — maybe a little naive.', 'Outsiders call it provocative — maybe a little dangerous.'],
+      aspiration: ['Its best future is radical simplicity, promises kept absolutely.', 'Its best future is naming the racket and refusing to run it.'],
+    },
+  },
+  {
+    a: 'sage', b: 'hero',
+    s1: 'Wisdom', s2: 'Action',
+    nots1: 'the untested', nots2: 'the at-rest',
+    gloss: 'knowing the world vs. forcing it to move',
+    statements: {
+      identity:   ['We are trusted because we understand things others don’t.', 'We are trusted because we perform under conditions others can’t.'],
+      audience:   ['They want to be shown the working before they believe.', 'They want to be pushed past what they thought was their limit.'],
+      image:      ['Outsiders call it rigorous — cited, credible, a bit aloof.', 'Outsiders call it intense — impressive, relentless, a bit much.'],
+      aspiration: ['Its best future is becoming the category’s teacher.', 'Its best future is becoming the category’s champion.'],
+    },
+  },
+  {
+    a: 'explorer', b: 'magician',
+    s1: 'Discovery', s2: 'Transformation',
+    nots1: 'the settled', nots2: 'the fixed',
+    gloss: 'finding what is out there vs. changing what is here',
+    statements: {
+      identity:   ['We open territory: new ground, new markets, new air.', 'We change states: what enters as one thing leaves as another.'],
+      audience:   ['They want equipment for a bigger life out there.', 'They want to be different on the other side of the purchase.'],
+      image:      ['Outsiders call it restless — always somewhere else by launch day.', 'Outsiders say "somehow" a lot — nobody can explain quite how it works.'],
+      aspiration: ['Its best future is the trailhead: the door to what’s next.', 'Its best future is the catalyst: before-and-after as the product.'],
+    },
+  },
+  {
+    a: 'everyman', b: 'creator',
+    s1: 'Belonging', s2: 'Originality',
+    nots1: 'the set-apart', nots2: 'the standard',
+    gloss: 'fitting in among vs. standing out from',
+    statements: {
+      identity:   ['We are for everyone, priced and worded like it.', 'We are for the ones who notice the details no one else builds.'],
+      audience:   ['They want to buy without auditioning for it.', 'They want objects and tools that treat them as makers.'],
+      image:      ['Outsiders call it dependable and unremarkable — furniture of daily life.', 'Outsiders call it the tasteful one — admired, imitated, a little precious.'],
+      aspiration: ['Its best future is the common table, set for everyone.', 'Its best future is the studio whose output defines the standard.'],
+    },
+  },
+  {
+    a: 'lover', b: 'caregiver',
+    s1: 'Desire', s2: 'Devotion',
+    nots1: 'the unmoved', nots2: 'the unheld',
+    gloss: 'the love that wants vs. the love that tends',
+    statements: {
+      identity:   ['We seduce: attention, beauty, the feeling of being chosen.', 'We tend: protection, patience, the feeling of being held.'],
+      audience:   ['They want to be desired — noticed in particular, not in general.', 'They want to be looked after — especially on the worst day.'],
+      image:      ['Outsiders call it gorgeous and a little extra.', 'Outsiders call it kind and a little careful.'],
+      aspiration: ['Its best future is depth: fewer people, adored completely.', 'Its best future is trust: the one they call at 3 a.m.'],
+    },
+  },
+  {
+    a: 'jester', b: 'ruler',
+    s1: 'Play', s2: 'Order',
+    nots1: 'the grave', nots2: 'the loose',
+    gloss: 'the licensed fool vs. the standing law',
+    statements: {
+      identity:   ['We are the ones who refuse to be solemn about any of it.', 'We are the ones who keep the system standing so others can relax.'],
+      audience:   ['They reward wit and share it; solemnity loses them.', 'They reward reliability and audit it; improvisation loses them.'],
+      image:      ['Outsiders call it the funny one — and wonder if it’s serious.', 'Outsiders call it the institution — and wish it would loosen up.'],
+      aspiration: ['Its best future is court jester to the category: the only one allowed to tell the truth laughing.', 'Its best future is infrastructure: boring in the right places for decades.'],
+    },
+  },
+];
+
+/* ---- the four lenses (enunciative positions) --------------------- */
+const LENSES = [
+  {
+    id: 'identity', title: 'Where the brand is', short: 'Identity',
+    poetic: 'the note it actually sounds',
+    prompt: 'Answer as the brand’s own conscience — what is true of it today, not what the deck says.',
+    valence: {
+      q: 'And this identity, held today —',
+      major: 'is held with conviction; the brand believes itself', minor: 'is worn thin; the brand performs itself',
+      majorShort: 'held with conviction', minorShort: 'worn thin',
+    },
+  },
+  {
+    id: 'audience', title: 'Where the customers are', short: 'Audience',
+    poetic: 'the note the room is humming',
+    prompt: 'Answer as the people you actually serve — their values, not their demographics.',
+    valence: {
+      q: 'And between the brand and these people —',
+      major: 'the distance is closing; they are moving toward each other', minor: 'the distance is opening; they are drifting apart',
+      majorShort: 'moving closer', minorShort: 'drifting apart',
+    },
+  },
+  {
+    id: 'image', title: 'What people believe it to be', short: 'Image',
+    poetic: 'the note that echoes back',
+    prompt: 'Answer as an outsider describing the brand at a dinner party — reputation, not intention.',
+    valence: {
+      q: 'And this reputation, on balance —',
+      major: 'flatters the brand; the echo is kind', minor: 'wounds the brand; the echo distorts',
+      majorShort: 'the echo is kind', minorShort: 'the echo distorts',
+    },
+  },
+  {
+    id: 'aspiration', title: 'Where it can be', short: 'Aspiration',
+    poetic: 'the note it is reaching for',
+    prompt: 'Answer for the brand’s best plausible future — worth wanting and actually reachable.',
+    valence: {
+      q: 'And this future, honestly —',
+      major: 'feels within reach; a matter of will', minor: 'feels like a leap; a matter of faith',
+      majorShort: 'within reach', minorShort: 'a leap of faith',
+    },
+  },
+];
+
+/* ---- interval diagnostics (distance on the circle, 0–6) ---------- */
+const INTERVAL_CLASSES = [
+  { dist: 0, name: 'unison', musical: 'the same key — no friction, total agreement', strategic: 'aligned. The risk is not tension but redundancy: sameness this complete stops generating information.' },
+  { dist: 1, name: 'a fifth apart', musical: 'neighboring keys sharing six of seven notes — the strongest consonance that is still two different places', strategic: 'productive kinship. Nearly everything is shared; the one note of difference is exactly where the energy is.' },
+  { dist: 2, name: 'two fifths apart', musical: 'a whole step between tonics — close relatives; modulation needs only a chord or two', strategic: 'within reach. The gap is legible and crossable; a season of consistent signals closes it.' },
+  { dist: 3, name: 'three fifths apart', musical: 'a bright strain — audibly related, audibly not the same place', strategic: 'real tension. Ignorable in good times, expensive in bad; left alone it reads as inconsistency.' },
+  { dist: 4, name: 'four fifths apart', musical: 'distant keys — few shared chords; getting there takes deliberate staging', strategic: 'a genuine gap. No single gesture crosses it; only a sequence read in order.' },
+  { dist: 5, name: 'five fifths apart', musical: 'estranged keys — barely any common material; adjacent moves feel foreign', strategic: 'estrangement. The positions no longer explain each other; each makes the other look false.' },
+  { dist: 6, name: 'the tritone', musical: 'the far point of the circle — diabolus in musica, maximal harmonic distance', strategic: 'the crisis interval. These positions are semiotic contraries: each is the other’s negation. Unmanaged it reads as hypocrisy; composed, it is the most powerful tension a brand can hold.' },
+];
+
+/* unison with split modes: the same position, heard in shadow */
+const SHADOW_GAP = {
+  name: 'the parallel minor',
+  musical: 'the same tonic, but one side sounds in minor — the third darkened, everything else in place',
+  strategic: 'the positions agree on where the brand stands and disagree on how it feels to stand there. This is not a repositioning problem; it is a re-voicing problem: same note, brighter third. Change the experience of the position, not the position.',
+};
+
+/* the six pairwise gaps between the four positions */
+const GAP_DEFS = [
+  { a: 'identity', b: 'image',      name: 'the authenticity gap', question: 'Do you appear as you are?' },
+  { a: 'identity', b: 'audience',   name: 'the resonance gap',    question: 'Do you share your people’s values?' },
+  { a: 'audience', b: 'image',      name: 'the reception gap',    question: 'Is what they see what they came for?' },
+  { a: 'identity', b: 'aspiration', name: 'the ambition interval',question: 'How far are you actually reaching?' },
+  { a: 'image', b: 'aspiration',    name: 'the credibility gap',  question: 'Will the move be believed?' },
+  { a: 'audience', b: 'aspiration', name: 'the permission gap',   question: 'Will they follow you there?' },
+];
+
+/* ---- bridges: the twelve adjacent transitions -------------------- */
+/* key: 'fromId>toId' clockwise; used in both directions with shared ground */
+const BRIDGES = {
+  'innocent>explorer': { shared: 'trust in the world', principle: 'The Innocent’s trust becomes the Explorer’s courage: someone who believes the world is good will walk into it. Keep the honesty; point it at a horizon.' },
+  'explorer>everyman': { shared: 'the open road meets the town', principle: 'Every trail ends at a table. The Explorer’s discoveries become the Everyman’s common goods: what was found out there is shared here, without ceremony.' },
+  'everyman>lover': { shared: 'closeness', principle: 'Belonging deepens into intimacy: the crowd resolves into one face. Keep the plainness; aim it at a single person at a time.' },
+  'lover>jester': { shared: 'delight', principle: 'Pleasure brightens into play. The Lover’s attention to what feels good becomes the Jester’s permission to enjoy it out loud.' },
+  'jester>hero': { shared: 'nerve', principle: 'The dare becomes the deed. The Jester’s fearlessness about looking foolish is the raw material of the Hero’s fearlessness about failing.' },
+  'hero>outlaw': { shared: 'refusal of limits', principle: 'The will to win hardens into the will to break. The Hero fights within the rules until the rules themselves are revealed as the opponent.' },
+  'outlaw>magician': { shared: 'the broken opening', principle: 'Transgression matures into transformation: what was torn open becomes a doorway. The energy of "no" becomes the power of "become."' },
+  'magician>creator': { shared: 'the shaping hand', principle: 'Transformation settles into craft. The Magician’s change-of-state becomes the Creator’s made object: wonder, given permanence.' },
+  'creator>caregiver': { shared: 'making for someone', principle: 'The made thing finds its recipient. Craft becomes care the moment the maker asks who will hold this, and on what kind of day.' },
+  'caregiver>ruler': { shared: 'responsibility', principle: 'Care scales into stewardship: one held person becomes a system that holds everyone. The vigil becomes the institution.' },
+  'ruler>sage': { shared: 'the long view', principle: 'Power ripens into wisdom — the philosopher-king’s move. Authority earns the right to teach by explaining itself, then teaching becomes the authority.' },
+  'sage>innocent': { shared: 'clarity', principle: 'Wisdom, completed, simplifies. The Sage’s ten thousand pages resolve into the Innocent’s one true sentence — a second innocence, on the far side of knowing.' },
+};
+
+/* ---- cadences: how an arrival lands ------------------------------ */
+const CADENCES = {
+  authentic: {
+    name: 'authentic cadence', figure: 'V7 → I',
+    reading: 'the decisive claim: dominant to tonic, the most conclusive arrival in the language. Use when the world is ready to believe you.',
+    principle: 'Announce the repositioning explicitly — a flagship act that only the new position could perform, launched at full volume.',
+  },
+  plagal: {
+    name: 'plagal cadence', figure: 'IV → I',
+    reading: 'the amen: an arrival by settling rather than insistence. Use when the audience is already humming the note you are moving to.',
+    principle: 'Do not announce — confirm. Let the repositioning surface as a series of quiet proofs until one day it is simply true and no one remembers otherwise.',
+  },
+  deceptive: {
+    name: 'deceptive cadence', figure: 'V7 → vi, then V7 → I',
+    reading: 'the earned arrival: promise the resolution, land somewhere unexpected, then resolve for real. Use when credibility is the scarce resource.',
+    principle: 'Subvert before you claim: publicly do the thing your reputation says you never would. The surprise buys the belief; then make the true move.',
+  },
+};
+
+/* ---- valence (mode) gloss ---------------------------------------- */
+const MODE_GLOSS = {
+  major: 'major — the position sounds in its open, daylight form',
+  minor: 'minor — the position sounds in shadow: same tonic, darkened third; the archetype’s cost is audible in it',
+};
+
+/* ---- presets: three fictional brands for the demo ride ----------- */
+/* answers: per lens — six axis picks (side 'a'|'b', strength 1|2 in axis order) + valence */
+const PRESETS = [
+  {
+    id: 'meridian', name: 'Meridian & Sons', sector: 'a 190-year-old private bank',
+    blurb: 'Impeccable, resented, and quietly aware that its clients’ heirs feel nothing for it. The institution wants to learn to speak.',
+    answers: {
+      identity:   { axes: [{ side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'b', strength: 1 }, { side: 'a', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 2 }], valence: 'major' },
+      audience:   { axes: [{ side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 2 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }], valence: 'minor' },
+      image:      { axes: [{ side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 2 }], valence: 'minor' },
+      aspiration: { axes: [{ side: 'a', strength: 2 }, { side: 'a', strength: 2 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }], valence: 'major' },
+    },
+  },
+  {
+    id: 'glimmer', name: 'Glimmer', sector: 'a five-year-old skincare company',
+    blurb: 'Founded on gentle honesty, adored for its jokes, and dreaming of becoming a transformation company. The distance is farther than the founders think.',
+    answers: {
+      identity:   { axes: [{ side: 'a', strength: 2 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }], valence: 'major' },
+      audience:   { axes: [{ side: 'a', strength: 1 }, { side: 'b', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 2 }, { side: 'a', strength: 1 }], valence: 'major' },
+      image:      { axes: [{ side: 'a', strength: 1 }, { side: 'b', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 2 }], valence: 'major' },
+      aspiration: { axes: [{ side: 'b', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 2 }, { side: 'b', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }], valence: 'minor' },
+    },
+  },
+  {
+    id: 'foldworks', name: 'Foldworks', sector: 'an AI workflow company',
+    blurb: 'Ships miracles weekly, described by the press with the word "unsettling," used daily by people who joke about it nervously. Wants to be trusted the way a library is trusted.',
+    answers: {
+      identity:   { axes: [{ side: 'b', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 2 }, { side: 'b', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }], valence: 'major' },
+      audience:   { axes: [{ side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 2 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }], valence: 'minor' },
+      image:      { axes: [{ side: 'b', strength: 2 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }, { side: 'a', strength: 1 }, { side: 'a', strength: 1 }], valence: 'minor' },
+      aspiration: { axes: [{ side: 'a', strength: 2 }, { side: 'a', strength: 2 }, { side: 'a', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }, { side: 'b', strength: 1 }], valence: 'major' },
+    },
+  },
+];
+
+/* ---- methodology (the field notes screen) ------------------------ */
+const METHODOLOGY = [
+  {
+    h: 'Why a circle, twice',
+    p: 'There are twelve brand archetypes and twelve keys on the circle of fifths, and both are genuinely circular: archetypes shade into their neighbors, and neighboring keys share six of their seven notes. This study maps one wheel onto the other so that conceptual distance becomes harmonic distance — something you can hear. Adjacent archetypes sound like kin. Opposed archetypes sit a tritone apart: the interval medieval theory nicknamed diabolus in musica and treated as the point of maximal tension.',
+  },
+  {
+    h: 'The wheel is an argument',
+    p: 'Read clockwise from C: purity opens into wandering; the road leads to the town; belonging deepens into desire; pleasure brightens into play; the dare becomes the deed; winning hardens into breaking; rupture matures into transformation; transformation settles into craft; making becomes making-for; care scales into stewardship; power ripens into wisdom; and wisdom simplifies back into purity. Twelve fifths that close a circle of meaning as well as one of pitch.',
+  },
+  {
+    h: 'A deliberate heresy',
+    p: 'Mark & Pearson’s wheel opposes its quadrants by motivation (independence against belonging, stability against mastery). This wheel is built instead from pairwise contraries, because the semiotic square runs on contraries: each archetype’s tritone is its strongest negation. Innocent–Outlaw, Sage–Hero, Explorer–Magician, Everyman–Creator, Lover–Caregiver, Jester–Ruler. The fool sits opposite the king; eros opposite agape. The quadrants survive as neighborhoods — the open, the near, the forge, the keep — but the axes are semiotic, not motivational.',
+  },
+  {
+    h: 'Key characters are codes, and we say so',
+    p: 'Nothing acoustic makes E♭ devoted or B wild — equal temperament flattened those differences centuries ago. Key character is folklore: Schubart’s 1806 catalogue, folk-session practice, the habits of Romantic pianists and brass bands. That folklore is exactly the kind of shared cultural code semiotics studies, so this map borrows it openly and chooses among its readings — Schubart’s where they fit (C’s innocence, E♭’s devotion, A’s declarations of love), the fiddlers’ D over Schubart’s where they conflict. A myth chosen knowingly is a methodology; a myth chosen silently is just branding.',
+  },
+  {
+    h: 'The square beneath the music',
+    p: 'The study reads four positions of one brand — identity (where it is), audience (where its people are), image (what it is believed to be), aspiration (where it could go). The identity’s governing value and that value’s contrary generate a Greimas square: value, counter-value, and their two negations. All four positions are plotted onto this territory — horizontally by which pole they serve, vertically by how fully they assert it — and each resolves to a key. From there, everything is intervals.',
+  },
+  {
+    h: 'Strategy as modulation',
+    p: 'A brand cannot leap from C to F♯ without losing the room; music solved this problem four hundred years ago. You modulate: move through pivot chords that belong to both the key you are leaving and the key you are entering — meanings both positions already share. Moving sharpward brightens by effort (each step raises a new leading tone: a genuinely new capability). Moving flatward relaxes by reframing (your old tonic is reheard as the new key’s dominant: existing equity becomes the setup for the next position). The final cadence is chosen by credibility: announce (authentic), settle (plagal), or subvert first and then resolve (deceptive). The strategy ships as a lead sheet — chords above, principles below.',
+  },
+];
+
+/* ---- the five movements: strategic glosses ----------------------- */
+/* {dest} and {key} are filled at render with the actual destination */
+const MOVE_GLOSSES = {
+  hold: 'Stay and deepen. The position is right but thinly held — the strategy is consistency at a volume the category can’t ignore. If the reputation has soured, change how the position feels, not where it stands. (In the music: same note, fuller chord.)',
+  dominant: 'Build one visible new capability and let it raise the brand’s energy. The confident step upward: do the new thing in public and stake the claim on it. (In the music: one fifth up — a single new sharp.)',
+  subdominant: 'Reframe what you already own as the doorway to {dest}. Nothing new to build — the move is maturity and warmth, told entirely through existing equity. (In the music: one fifth down — your home chord becomes the door.)',
+  relative: 'Recompose: same assets, new emotional center. Every code the brand owns already belongs to {dest} — recenter the story there and you get differentiation without a rebrand. (In the music: the relative key — an identical signature.)',
+  tritone: 'Become the category’s contrary. Maximum differentiation, minimum initial belief — it only works if you publicly subvert your own reputation first, then claim the new ground. (In the music: the tritone, the far side of the wheel.)',
+};
+
+/* ---- the three genre routes -------------------------------------- */
+const GENRES = [
+  {
+    id: 'jazz', title: 'Jazz', tagline: 'tension, on purpose',
+    gloss: 'The dissonant route — leap all the way to {dest} and hold the clash until the room leans in. Jazz doesn’t resolve early: the surprising move is the argument, and the arrival lands because you made them wait. Highest differentiation, hardest sell — the fun kind of wrong. (In the music: the destination’s ii, then a tritone substitute — the “wrong” chord that’s secretly right.)',
+    moveWhy: 'This route treats your reputation as material to play against. The brand does the unexpected thing loudly, sustains the discomfort past the point a cautious brand would apologize, and resolves only once the category has leaned in to listen. The dissonance is not a cost — it is the content.',
+    signal: 'When the tension you struck on purpose starts being quoted as the point — the clash has become identity.',
+  },
+  {
+    id: 'classical', title: 'Classical', tagline: 'movement without a seam',
+    gloss: 'The composed route — one step to {dest}, modulated so smoothly nobody can point to the moment it changed. Every move travels through material both positions already share, so credibility never breaks. (In the music: pivot-chord modulation, resolved by the book.)',
+    moveWhy: 'This route never asks the audience to forgive a jump. Each gesture is prepared by the last, each new note shared with the old key, and the reposition is only visible in hindsight — the brand seems to have grown, not turned.',
+    signal: 'When someone describes the new position as what you always were — the seam is invisible.',
+  },
+  {
+    id: 'pop', title: 'Pop', tagline: 'the hook, repeated',
+    gloss: 'The hook route — go where your people already are and say it simply enough to be repeated. Simplicity is the strategy: four chords, no cleverness, and a key change for the last chorus. (In the music: the doo-wop loop — I, vi, IV, V — in {dest}’s key.)',
+    moveWhy: 'This route optimizes for transmission. One idea, said catchily, repeated without variation until the audience does the repeating for you. Complexity is the enemy; the chorus is the strategy deck.',
+    signal: 'When strangers repeat the hook back to you unchanged — the audience has taken over distribution.',
+  },
+];
+
+/* ---- voice, made concrete: say this, not that -------------------- */
+const SAYNOT = {
+  innocent: [
+    { say: 'It works. It costs twelve dollars.', not: 'Our revolutionary solution unlocks holistic value.' },
+    { say: 'Nothing in here you can’t pronounce.', not: 'Formulated with our proprietary complex.' },
+  ],
+  explorer: [
+    { say: 'The road doesn’t care about your inbox.', not: 'Everything you need, all in one place.' },
+    { say: 'Works at −20°, four days from a socket.', not: 'Seamless connectivity, wherever life takes you.' },
+  ],
+  everyman: [
+    { say: 'Fair price. Decent coffee. Open at six.', not: 'An elevated experience, curated for the discerning.' },
+    { say: 'Built to be fixed, not replaced.', not: 'Indulge yourself — you deserve luxury.' },
+  ],
+  lover: [
+    { say: 'Made for the second glass, not the first sip.', not: 'Optimized for maximum user satisfaction.' },
+    { say: 'We remembered — it’s the one you wore in Lisbon.', not: 'Recommended for you based on your browsing history.' },
+  ],
+  jester: [
+    { say: 'Terms and conditions apply. They’re actually funny.', not: 'We take fun seriously.' },
+    { say: 'Our 404 page has a fan club.', not: 'Delight is one of our five core values.' },
+  ],
+  hero: [
+    { say: 'Add ten kilos. Then we’ll talk.', not: 'Comfort you’ll absolutely love.' },
+    { say: 'Tested at altitude. Numbers published.', not: 'Engineered for peak performance.' },
+  ],
+  outlaw: [
+    { say: 'The fee everyone charges you? Gone. It was rent.', not: 'A fresh take on a classic category.' },
+    { say: 'Banned in three trade associations.', not: 'Boldly disrupting the industry.' },
+  ],
+  magician: [
+    { say: 'Forty minutes becomes four. Watch.', not: 'Leveraging AI to streamline workflows.' },
+    { say: 'You walk in tired. You walk out someone who slept.', not: 'A transformative wellness journey.' },
+  ],
+  creator: [
+    { say: 'Third prototype. The hinge finally disappears.', not: 'Designed with meticulous attention to detail.' },
+    { say: 'Open file. Steal it. Make it better.', not: 'Unleash your creativity.' },
+  ],
+  caregiver: [
+    { say: 'Someone answers at 3 a.m. Her name is on the page.', not: 'Your call is important to us.' },
+    { say: 'The refund is already on its way.', not: 'Customer satisfaction is our top priority.' },
+  ],
+  ruler: [
+    { say: 'Audited annually. Findings published, including the bad one.', not: 'Trusted by millions worldwide.' },
+    { say: 'The standard since 1907. Amended twice, explained both times.', not: 'Committed to excellence and integrity.' },
+  ],
+  sage: [
+    { say: 'Here’s the data, the method, and the two places we’re unsure.', not: 'Studies show it simply works.' },
+    { say: 'We changed our position. Here’s what changed it.', not: 'The science is settled — trust the experts.' },
+  ],
+};
+
+/* ---- ui strings --------------------------------------------------- */
+const APP = {
+  title: 'harmonics',
+  tagline: 'a semiotic study of brands, in twelve keys',
+  landing: [
+    'Every brand is a claim about meaning, and every claim has a sound.',
+    'Some brands are in tune with the people they serve. Some are one sharp away and call it strategy. Some are a tritone from their own reputation and call it mystery.',
+    'This study locates a brand four times — as it is, as its people are, as it is believed to be, as it could be — sets each position ringing in its proper key, and composes the way home.',
+  ],
+};
+/* ══════ theory.js ══════ */
+/* =====================================================================
+   theory.js — the music engine.
+   Pure functions, no DOM: keys, diatonic chords, circle distance,
+   the harmonic options menu (where a brand CAN go from its key),
+   and the two-movement journey compressor (how it gets there —
+   never more than a bridge, a turn, and an arrival).
+   ===================================================================== */
+
+/* semitone of each key's tonic, in circle order (index ↔ ARCHETYPES) */
+const TONIC_SEMITONE = { C: 0, G: 7, D: 2, A: 9, E: 4, B: 11, 'F#': 6, Db: 1, Ab: 8, Eb: 3, Bb: 10, F: 5 };
+
+/* signed accidental count: sharps positive, flats negative — the
+   "physics" the visual direction is derived from (energy vs warmth) */
+const ACCIDENTALS = { C: 0, G: 1, D: 2, A: 3, E: 4, B: 5, 'F#': 6, Db: -5, Ab: -4, Eb: -3, Bb: -2, F: -1 };
+
+const SHARP_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const FLAT_NAMES  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const FLAT_KEYS = new Set(['F', 'Bb', 'Eb', 'Ab', 'Db']);
+
+const pretty = (name) => name.replace('#', '♯').replace('b', '♭');
+
+function noteName(semitone, key) {
+  const pc = ((semitone % 12) + 12) % 12;
+  if (key === 'F#' && pc === 5) return 'E#'; // proper leading-tone spelling
+  return (FLAT_KEYS.has(key) ? FLAT_NAMES : SHARP_NAMES)[pc];
+}
+
+/* major scale + diatonic triad qualities */
+const SCALE = [0, 2, 4, 5, 7, 9, 11];
+const QUALITY = ['maj', 'min', 'min', 'maj', 'maj', 'min', 'dim'];
+const ROMAN   = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+const TRIAD = { maj: [0, 4, 7], min: [0, 3, 7], dim: [0, 3, 6] };
+
+const keyOf = (idx) => ARCHETYPES[((idx % 12) + 12) % 12].key;
+const wrap = (i) => ((i % 12) + 12) % 12;
+
+/* distance on the circle of fifths: 0..6 */
+function circleDistance(i, j) {
+  const d = Math.abs(wrap(i) - wrap(j));
+  return Math.min(d, 12 - d);
+}
+
+/* a chord object the UI and audio both understand */
+function chord(keyIdx, degree, { seventh = false, maj7 = false, minorTonic = false } = {}) {
+  const key = keyOf(keyIdx);
+  const tonic = TONIC_SEMITONE[key];
+  const root = tonic + SCALE[degree];
+  let quality = QUALITY[degree];
+  let intervals = TRIAD[quality].slice();
+  let suffix = quality === 'min' ? 'm' : quality === 'dim' ? '°' : '';
+  let roman = ROMAN[degree];
+  if (minorTonic && degree === 0) { quality = 'min'; intervals = TRIAD.min.slice(); suffix = 'm'; roman = 'i'; }
+  if (maj7) { intervals = intervals.concat([11]); suffix += 'maj7'; roman += 'maj7'; }
+  else if (seventh) {
+    intervals = degree === 4 ? [0, 4, 7, 10] : intervals.concat([10]);
+    suffix += '7';
+    roman += '7';
+  }
+  return {
+    keyIdx: wrap(keyIdx), key, degree,
+    label: pretty(noteName(root, key)) + suffix,
+    roman,
+    rootSemitone: ((root % 12) + 12) % 12,
+    intervals,
+  };
+}
+
+/* the tritone substitute: the ♭II7 — jazz's "wrong" dominant that's
+   secretly right (it shares the tritone with the real V7) */
+function subV(keyIdx) {
+  const key = keyOf(keyIdx);
+  const root = TONIC_SEMITONE[key] + 1;
+  return {
+    keyIdx: wrap(keyIdx), key, degree: -1,
+    label: pretty(noteName(root, key)) + '7',
+    roman: '♭II7',
+    rootSemitone: ((root % 12) + 12) % 12,
+    intervals: [0, 4, 7, 10],
+  };
+}
+
+/* --------------------------------------------------------------------
+   Genre routes: three styles of repositioning, three destinations.
+   Classical — the better neighbor (±1), moved without a seam.
+   Jazz — the tritone (+6): tension held on purpose.
+   Pop — the audience's own key (or the +2 gear-shift when you're
+   already standing on it): go where the room is.
+   ------------------------------------------------------------------- */
+function genreDests(identityIdx, audienceIdx, imageIdx) {
+  const neighbor = (d) => {
+    const dest = wrap(identityIdx + d);
+    return { dest, score: circleDistance(dest, audienceIdx) * 1.2 + circleDistance(dest, imageIdx) };
+  };
+  const up = neighbor(+1), down = neighbor(-1);
+  const classical = up.score <= down.score ? up.dest : down.dest;
+  const jazz = wrap(identityIdx + 6);
+  const pop = wrap(audienceIdx) === wrap(identityIdx) ? wrap(identityIdx + 2) : wrap(audienceIdx);
+  return { classical, jazz, pop, popIsGearShift: wrap(audienceIdx) === wrap(identityIdx) };
+}
+
+/* signature chord of an archetype (its "position card" sound) */
+function signatureChord(idx, mode = 'major') {
+  const a = ARCHETYPES[wrap(idx)];
+  const tonic = TONIC_SEMITONE[a.key];
+  let intervals = a.chord.notes.slice();
+  if (mode === 'minor') intervals = intervals.map((n) => { const pc = ((n % 12) + 12) % 12; return pc === 4 ? n - 1 : n; });
+  return {
+    keyIdx: wrap(idx), key: a.key,
+    label: pretty(a.key) + (mode === 'minor' ? 'm' : a.chord.suffix),
+    roman: mode === 'minor' ? 'i' : 'I',
+    rootSemitone: tonic, intervals,
+    gloss: a.chord.gloss,
+  };
+}
+
+function rootMidi(keyIdx) {
+  const t = TONIC_SEMITONE[keyOf(keyIdx)];
+  return 48 + (t > 7 ? t - 12 : t);
+}
+
+/* --------------------------------------------------------------------
+   The options menu: the five movements available from any key.
+   Hold (0) · Sharpen (+1, dominant) · Warm (−1, subdominant) ·
+   Recompose (+3, the relative door — shared key signature) ·
+   Invert (+6, the tritone — the semiotic contrary).
+   Each option carries its diagnostics: reach (effort from identity),
+   earshot (distance to the audience), belief (distance from image).
+   ------------------------------------------------------------------- */
+const MOVE_DEFS = [
+  { id: 'hold',        title: 'Hold',      mechanic: 'deepen in place',        delta: 0 },
+  { id: 'dominant',    title: 'Sharpen',   mechanic: 'the dominant move · one fifth up',  delta: +1 },
+  { id: 'subdominant', title: 'Warm',      mechanic: 'the subdominant move · one fifth down', delta: -1 },
+  { id: 'relative',    title: 'Recompose', mechanic: 'the relative door · same signature, new center', delta: +3 },
+  { id: 'tritone',     title: 'Invert',    mechanic: 'the tritone · become the contrary', delta: +6 },
+];
+
+function futureMoves(identityIdx, audienceIdx, imageIdx) {
+  return MOVE_DEFS.map((d) => {
+    const destIdx = wrap(identityIdx + d.delta);
+    return {
+      ...d, destIdx,
+      reach: circleDistance(identityIdx, destIdx),
+      earshot: circleDistance(destIdx, audienceIdx),
+      belief: circleDistance(destIdx, imageIdx),
+    };
+  });
+}
+
+/* --------------------------------------------------------------------
+   Journey compression: never more than two movements.
+   d ≤ 2  → one direct movement (a legible pivot move).
+   d ≥ 3  → Movement I bridges to an intermediate key (≤ 2 fifths out,
+            chosen to pass nearest the audience), then Movement II is
+            "the turn": enter the destination through its own ii–V —
+            the target's grammar adopted before its name is claimed.
+   The final landing chord is left to the cadence.
+   ------------------------------------------------------------------- */
+function dirOf(a, b) { return wrap(b - a) <= 6 ? 'sharp' : 'flat'; }
+
+function compressJourney(fromIdx, toIdx, audienceIdx) {
+  fromIdx = wrap(fromIdx); toIdx = wrap(toIdx); audienceIdx = wrap(audienceIdx);
+  if (fromIdx === toIdx) return { inPlace: true, movements: [] };
+
+  const d = circleDistance(fromIdx, toIdx);
+  if (d <= 2) {
+    return { inPlace: false, movements: [{ type: 'direct', from: fromIdx, to: toIdx, dir: dirOf(fromIdx, toIdx), dist: d }] };
+  }
+  // choose the intermediate: within two fifths of home, not the target,
+  // nearest the audience; ties break toward the target
+  let best = null;
+  for (let x = 0; x < 12; x++) {
+    if (x === fromIdx || x === toIdx) continue;
+    const leg1 = circleDistance(fromIdx, x);
+    if (leg1 > 2) continue;
+    const cand = { x, leg1, aud: circleDistance(x, audienceIdx), toTarget: circleDistance(x, toIdx) };
+    if (!best || cand.aud < best.aud || (cand.aud === best.aud && cand.toTarget < best.toTarget)) best = cand;
+  }
+  return {
+    inPlace: false,
+    movements: [
+      { type: 'direct', from: fromIdx, to: best.x, dir: dirOf(fromIdx, best.x), dist: best.leg1 },
+      { type: 'turn', from: best.x, to: toIdx, dist: circleDistance(best.x, toIdx) },
+    ],
+  };
+}
+
+/* one movement as chords. Direct movements END ON THE NEW DOMINANT
+   (arrival is the cadence's job when they are the final movement);
+   when a direct movement is Movement I of two, it resolves to its
+   local tonic so the bridge key is actually reached.                 */
+function movementChords(m, { resolve }) {
+  const out = { chords: [], pivotLabel: '', pivotGloss: '' };
+  if (m.type === 'turn') {
+    const ii = chord(m.to, 1, { seventh: true });
+    const V = chord(m.to, 4, { seventh: true });
+    out.chords = [ii, V];
+    out.pivotLabel = `${ii.label} → ${V.label}`;
+    out.pivotGloss = `${pretty(keyOf(m.to))}’s own ii–V — the destination’s grammar, spoken before its name is claimed.`;
+    return out;
+  }
+  const { from, to, dir, dist } = m;
+  if (dir === 'sharp') {
+    const pivot = dist === 1 ? chord(from, 5) : chord(from, 2); // vi (=ii of new) or iii (=ii of new, two out)
+    const V = chord(to, 4, { seventh: true });
+    out.chords = [chord(from, 0), pivot, V];
+    out.pivotLabel = pivot.label;
+    out.pivotGloss = dist === 1
+      ? `${pivot.label} lives in both keys — vi of ${pretty(keyOf(from))}, ii of ${pretty(keyOf(to))}: the shared material the move travels through.`
+      : `${pivot.label} is ${pretty(keyOf(from))}’s iii re-heard as ${pretty(keyOf(to))}’s ii — one chord, two allegiances.`;
+  } else {
+    const pivot = dist === 1 ? chord(from, 0, { seventh: true }) : chord(from, 3, { seventh: dist === 2 });
+    out.chords = [chord(from, 0), pivot];
+    out.pivotLabel = pivot.label;
+    out.pivotGloss = dist === 1
+      ? `${pivot.label} is the old home chord with one honest flat added — suddenly the dominant of ${pretty(keyOf(to))}. What you already are becomes the door.`
+      : `${pivot.label} is ${pretty(keyOf(from))}’s IV re-voiced as ${pretty(keyOf(to))}’s dominant — owned ground, pointing at the new home.`;
+  }
+  if (resolve) out.chords.push(chord(to, 0));
+  return out;
+}
+
+/* the cadence RESOLVES the prepared dominant */
+function cadenceProgression(kind, keyIdx, mode = 'major') {
+  const I = chord(keyIdx, 0, { minorTonic: mode === 'minor' });
+  if (kind === 'plagal') return [I, chord(keyIdx, 3), I];
+  if (kind === 'deceptive') return [chord(keyIdx, 5), chord(keyIdx, 4, { seventh: true }), I];
+  return [I]; // authentic: the V7 is already sounding — land
+}
+
+function chooseCadence(imageIdx, destIdx) {
+  const d = circleDistance(imageIdx, destIdx);
+  if (d <= 1) return 'authentic';
+  if (d <= 3) return 'plagal';
+  return 'deceptive';
+}
+
+/* the whole piece: home → route (in the chosen style) → cadence */
+function fullProgression(study, destIdx, destMode = 'major', via = 'classical') {
+  const idIdx = study.identity.index;
+  destIdx = wrap(destIdx);
+  const cadKind = chooseCadence(study.image.index, destIdx);
+  const bars = [];
+  bars.push({ chord: signatureChord(idIdx, study.identity.mode), tag: 'home' });
+
+  /* jazz: the target's ii, then the tritone substitute — dissonance held
+     on purpose — then resolution (deceptive if belief demands it) */
+  if (via === 'jazz' && destIdx !== idIdx) {
+    const journey = { inPlace: false, genre: 'jazz', movements: [{ type: 'jazz', from: idIdx, to: destIdx }] };
+    bars.push({ chord: chord(destIdx, 1, { seventh: true }), tag: 'turn' });
+    bars.push({ chord: subV(destIdx), tag: 'turn', pivot: true });
+    if (cadKind === 'deceptive') {
+      bars.push({ chord: chord(destIdx, 5), tag: 'cadence' });
+      bars.push({ chord: chord(destIdx, 4, { seventh: true }), tag: 'cadence' });
+    }
+    bars.push({ chord: chord(destIdx, 0, { maj7: true, minorTonic: destMode === 'minor' }), tag: 'cadence' });
+    return { journey, cadence: cadKind, bars, destIdx, destMode };
+  }
+
+  /* pop: the doo-wop loop in the destination key — I vi IV V —
+     ending prepared, then the cadence lands it */
+  if (via === 'pop' && destIdx !== idIdx) {
+    const journey = { inPlace: false, genre: 'pop', movements: [{ type: 'pop', from: idIdx, to: destIdx }] };
+    [chord(destIdx, 0), chord(destIdx, 5), chord(destIdx, 3), chord(destIdx, 4, { seventh: true })]
+      .forEach((c) => bars.push({ chord: c, tag: 'turn' }));
+    cadenceProgression(cadKind, destIdx, destMode).forEach((c) => bars.push({ chord: c, tag: 'cadence' }));
+    return { journey, cadence: cadKind, bars, destIdx, destMode };
+  }
+
+  /* classical (and the stated ambition): pivot modulation, by the book */
+  const journey = compressJourney(idIdx, destIdx, study.audience.index);
+  if (journey.inPlace) {
+    [chord(idIdx, 3), chord(idIdx, 4, { seventh: true }), chord(idIdx, 0, { minorTonic: destMode === 'minor' }), chord(idIdx, 3), chord(idIdx, 0)]
+      .forEach((c, i) => bars.push({ chord: c, tag: i >= 2 ? 'cadence' : 'deepen' }));
+    return { journey, cadence: 'plagal', bars, destIdx, destMode };
+  }
+
+  journey.movements.forEach((m, mi) => {
+    const isFinal = mi === journey.movements.length - 1;
+    const mc = movementChords(m, { resolve: !isFinal }); // final movement stays on V7; cadence lands it
+    mc.chords.forEach((c, ci) => {
+      if (ci === 0 && bars.length) {
+        const prev = bars[bars.length - 1];
+        if (prev.chord.rootSemitone === c.rootSemitone && (prev.chord.roman === c.roman || prev.tag === 'home')) return;
+      }
+      bars.push({ chord: c, tag: mi === 0 && journey.movements.length > 1 ? 'bridge' : 'turn', mvt: mi, pivot: mc.pivotLabel === c.label });
+    });
+  });
+
+  cadenceProgression(cadKind, destIdx, destMode).forEach((c) => bars.push({ chord: c, tag: 'cadence' }));
+  return { journey, cadence: cadKind, bars, destIdx, destMode };
+}
+/* ══════ scoring.js ══════ */
+/* =====================================================================
+   scoring.js — from answers to positions.
+   Each lens: six axis choices (+ one valence) → a 12-dim archetype
+   vector → a dominant archetype (a key), a mode (major/minor), and
+   square coordinates (x: which pole it serves, y: how fully it
+   asserts). Pure functions; no DOM.
+   ===================================================================== */
+
+const N = 12;
+const NEIGHBOR_SPILL = 0.35; // kinship: a choice warms its wheel-neighbors
+
+/* answers: { axes: [{side:'a'|'b', strength:1|2} x6], valence:'major'|'minor' } */
+function scoreLens(answers) {
+  const vec = new Array(N).fill(0);
+  answers.axes.forEach((ans, i) => {
+    if (!ans) return;
+    const id = ans.side === 'a' ? AXES[i].a : AXES[i].b;
+    const idx = byId[id].index;
+    vec[idx] += ans.strength;
+    vec[wrap(idx - 1)] += ans.strength * NEIGHBOR_SPILL;
+    vec[wrap(idx + 1)] += ans.strength * NEIGHBOR_SPILL;
+  });
+
+  // dominant: highest total; ties break by direct (unspilled) hits, then wheel order
+  const direct = new Array(N).fill(0);
+  answers.axes.forEach((ans, i) => {
+    if (!ans) return;
+    direct[byId[ans.side === 'a' ? AXES[i].a : AXES[i].b].index] += ans.strength;
+  });
+  let index = 0;
+  for (let i = 1; i < N; i++) {
+    if (vec[i] > vec[index] + 1e-9 || (Math.abs(vec[i] - vec[index]) < 1e-9 && direct[i] > direct[index])) index = i;
+  }
+
+  // assertion: how much of the meaning-mass the dominant key holds.
+  // Because the six answers land on six different axes, the share has a
+  // structural range of roughly .145 (scattered) to .235 (a dominant
+  // pole reinforced by strong neighbors). Rescale that band to 0..1.
+  const total = vec.reduce((s, v) => s + v, 0) || 1;
+  const share = vec[index] / total;
+  const assertion = Math.max(0, Math.min(1, (share - 0.145) / (0.235 - 0.145)));
+
+  return { vector: vec, index, dominantId: ARCHETYPES[index].id, mode: answers.valence || 'major', assertion, direct };
+}
+
+/* affinity of a lens vector for one archetype pole (with neighbor warmth) */
+function poleAffinity(vec, idx) {
+  return vec[idx] + 0.5 * (vec[wrap(idx - 1)] + vec[wrap(idx + 1)]);
+}
+
+/* the whole study */
+function runStudy(allAnswers) {
+  const lenses = {};
+  for (const lensId of ['identity', 'audience', 'image', 'aspiration']) {
+    lenses[lensId] = scoreLens(allAnswers[lensId]);
+  }
+
+  // the core opposition: the axis the identity's dominant belongs to,
+  // oriented so S1 is the identity's own pole
+  const domId = lenses.identity.dominantId;
+  const axis = AXES.find((ax) => ax.a === domId || ax.b === domId);
+  const flipped = axis.b === domId;
+  const square = {
+    axis,
+    s1: { id: flipped ? axis.b : axis.a, term: flipped ? axis.s2 : axis.s1, not: flipped ? axis.nots2 : axis.nots1 },
+    s2: { id: flipped ? axis.a : axis.b, term: flipped ? axis.s1 : axis.s2, not: flipped ? axis.nots1 : axis.nots2 },
+  };
+
+  // plot each lens into the square: x = allegiance between poles, y = assertion
+  const p1 = byId[square.s1.id].index, p2 = byId[square.s2.id].index;
+  for (const lensId of Object.keys(lenses)) {
+    const L = lenses[lensId];
+    const a1 = poleAffinity(L.vector, p1), a2 = poleAffinity(L.vector, p2);
+    L.x = (a1 - a2) / (a1 + a2 + 1e-9); // -1 (S2) … +1 (S1)
+    L.y = L.assertion;                   //  0 (negation) … 1 (assertion)
+  }
+
+  // vertical placement: absolute assertion, damped when the position
+  // sounds in minor (a position held in shadow is held less fully)
+  Object.values(lenses).forEach((L) => {
+    const minorDrop = L.mode === 'minor' ? 0.08 : 0;
+    L.yPlot = Math.max(0.08, Math.min(0.92, 0.14 + 0.76 * L.y - minorDrop));
+  });
+
+  return { ...lenses, square };
+}
+/* ══════ audio.js ══════ */
+/* =====================================================================
+   audio.js — a piano on the raw Web Audio API.
+   Additive synthesis, struck not plucked: stacked partials with
+   per-partial decays, slight inharmonic stretch, and a felt-hammer
+   thump, computed once per note into cached buffers.
+   No libraries; nothing to install.
+   ===================================================================== */
+
+let ctx = null, master = null, dry = null, wet = null;
+const active = new Set();   // live sources, for stopAll
+let timers = [];            // UI-callback timeouts, for stopAll
+const pluckCache = new Map();
+
+function ensureCtx() {
+  if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+  master = ctx.createGain(); master.gain.value = 0.9;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.knee.value = 22; comp.ratio.value = 3.5;
+
+  // a room for the piano: 2s of exponentially decaying noise as the impulse
+  const seconds = 2.0, rate = ctx.sampleRate;
+  const ir = ctx.createBuffer(2, seconds * rate, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = ir.getChannelData(ch);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2.4);
+  }
+  const verb = ctx.createConvolver(); verb.buffer = ir;
+
+  dry = ctx.createGain(); dry.gain.value = 0.85;
+  wet = ctx.createGain(); wet.gain.value = 0.22;
+  master.connect(dry); dry.connect(comp);
+  master.connect(verb); verb.connect(wet); wet.connect(comp);
+  comp.connect(ctx.destination);
+}
+
+const midiHz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+
+/* A struck string, not a plucked one: piano-style additive synthesis.
+   Each note is a stack of partials with a hammer-fast attack and
+   per-partial decays (high partials die first), a touch of inharmonic
+   stretch, and a soft felt thump — computed once into a cached buffer. */
+function pluckBuffer(midi) {
+  if (pluckCache.has(midi)) return pluckCache.get(midi);
+  const sr = ctx.sampleRate;
+  const f = midiHz(midi);
+  const seconds = 3.4;
+  const len = Math.floor(sr * seconds);
+  const data = new Float32Array(len);
+
+  // partials: gains fall off, decays shorten as the partial rises;
+  // slight stretch (real strings are stiff) keeps it from sounding organ-like
+  const PARTIALS = [
+    { n: 1, gain: 1.0, decay: 1.15 },
+    { n: 2, gain: 0.42, decay: 0.55 },
+    { n: 3, gain: 0.2, decay: 0.36 },
+    { n: 4, gain: 0.09, decay: 0.25 },
+    { n: 5.02, gain: 0.05, decay: 0.18 },
+  ];
+  const stretch = 1 + 0.0006 * (midi < 52 ? 2 : 1);
+  const brightness = midi > 66 ? 0.8 : 1; // upper register a touch gentler
+  for (const p of PARTIALS) {
+    const w = 2 * Math.PI * f * p.n * Math.pow(stretch, p.n * p.n) / sr;
+    const dec = p.decay * (midi < 52 ? 1.5 : 1); // bass rings longer
+    const g0 = p.gain * brightness;
+    for (let i = 0; i < len; i++) {
+      const t = i / sr;
+      data[i] += g0 * Math.exp(-t / dec) * Math.sin(w * i);
+    }
+  }
+  // hammer thump: a few ms of soft filtered noise at the very front
+  let prev = 0;
+  const thump = Math.floor(sr * 0.012);
+  for (let i = 0; i < thump; i++) {
+    const w = Math.random() * 2 - 1;
+    prev = 0.6 * prev + 0.4 * w;
+    data[i] += prev * 0.25 * (1 - i / thump);
+  }
+  // fast attack ramp so the strike doesn't click
+  const atk = Math.floor(sr * 0.002);
+  for (let i = 0; i < atk; i++) data[i] *= i / atk;
+  // normalize to a safe peak
+  let peak = 0;
+  for (let i = 0; i < len; i++) peak = Math.max(peak, Math.abs(data[i]));
+  const norm = peak > 0 ? 0.95 / peak : 1;
+  for (let i = 0; i < len; i++) data[i] *= norm;
+
+  const buf = ctx.createBuffer(1, len, sr);
+  buf.copyToChannel(data, 0);
+  pluckCache.set(midi, buf);
+  return buf;
+}
+
+function pluck(midi, t0, dur, level = 0.3) {
+  const src = ctx.createBufferSource();
+  src.buffer = pluckBuffer(midi);
+  const gn = ctx.createGain();
+  gn.gain.setValueAtTime(level, t0);
+  gn.gain.setValueAtTime(level, t0 + Math.max(0.05, dur));
+  gn.gain.exponentialRampToValueAtTime(0.0001, t0 + dur + 0.5);
+  src.connect(gn); gn.connect(master);
+  src.start(t0); src.stop(t0 + dur + 0.6);
+  active.add(src);
+  src.onended = () => active.delete(src);
+}
+
+/* a chord: intervals (semitones) above a root midi note */
+function playChord(rootMidi, intervals, { when = 0, duration = 2.6, strum = 0.018, level = 0.28 } = {}) {
+  ensureCtx();
+  const t0 = ctx.currentTime + 0.02 + when;
+  intervals.forEach((iv, i) => pluck(rootMidi + iv, t0 + i * strum, duration, level));
+  return duration;
+}
+
+/* two keys sounded together — the gap made audible */
+function playPolychord(rootA, ivA, rootB, ivB, { duration = 3.4 } = {}) {
+  ensureCtx(); stopAll();
+  playChord(rootA, ivA, { duration, level: 0.26, strum: 0.02 });
+  playChord(rootB + 12, ivB, { duration, level: 0.2, strum: 0.02, when: 0.02 });
+  return duration;
+}
+
+/* the four positions as one slow arpeggio — "the sound of the brand now" */
+function playTetrad(rootMidis, { duration = 5.0 } = {}) {
+  ensureCtx(); stopAll();
+  const sorted = [...rootMidis].sort((a, b) => a - b);
+  const spread = sorted.map((m, i) => m + (i >= 2 ? 12 : 0));
+  spread.forEach((m, i) => pluck(m, ctx.currentTime + 0.02 + i * 0.09, duration, 0.24));
+  return duration;
+}
+
+/* a sequence of chords; onStep(i) fires as each begins, onDone() after */
+function playProgression(chords, { secondsPerChord = 1.7, onStep = null, onDone = null } = {}) {
+  ensureCtx(); stopAll();
+  let t = 0;
+  chords.forEach((c, i) => {
+    playChord(c.rootMidi, c.intervals, { when: t, duration: secondsPerChord * 1.2, level: 0.26, strum: 0.02 });
+    if (onStep) timers.push(setTimeout(() => onStep(i), (t + 0.03) * 1000));
+    t += secondsPerChord;
+  });
+  if (onDone) timers.push(setTimeout(onDone, (t + 0.9) * 1000));
+  return t;
+}
+
+/* ---- a small drum kit, synthesized ------------------------------- */
+let noiseBuf = null;
+function noise() {
+  if (noiseBuf) return noiseBuf;
+  const len = ctx.sampleRate * 0.5;
+  noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  return noiseBuf;
+}
+
+function drumKick(t, level = 1) {
+  const o = ctx.createOscillator(); o.type = 'sine';
+  o.frequency.setValueAtTime(120, t);
+  o.frequency.exponentialRampToValueAtTime(45, t + 0.11);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.5 * level, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t + 0.25);
+  active.add(o); o.onended = () => active.delete(o);
+}
+
+function drumNoise(t, { hp = 6000, dur = 0.045, level = 0.09, body = 0 }) {
+  const src = ctx.createBufferSource(); src.buffer = noise();
+  const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(level, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  src.connect(f); f.connect(g); g.connect(master);
+  src.start(t); src.stop(t + dur + 0.02);
+  active.add(src); src.onended = () => active.delete(src);
+  if (body) { // snare drum body tone
+    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = body;
+    const og = ctx.createGain();
+    og.gain.setValueAtTime(level * 0.9, t);
+    og.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+    o.connect(og); og.connect(master);
+    o.start(t); o.stop(t + 0.1);
+    active.add(o); o.onended = () => active.delete(o);
+  }
+}
+
+/* ---- perform a composed piece ------------------------------------ */
+function playPiece(piece, { onBar = null, onDone = null } = {}) {
+  ensureCtx(); stopAll();
+  const spb = 60 / piece.bpm;
+  const t0 = ctx.currentTime + 0.06;
+  piece.events.forEach((ev) => {
+    const t = t0 + ev.t * spb;
+    if (ev.kind === 'note') pluck(ev.midi, t, ev.dur * spb, ev.level);
+    else if (ev.kind === 'kick') drumKick(t, ev.level ?? 1);
+    else if (ev.kind === 'snare') drumNoise(t, { hp: 1600, dur: 0.12, level: 0.12 * (ev.level ?? 1), body: 190 });
+    else if (ev.kind === 'hat') drumNoise(t, { hp: 7000, dur: 0.04, level: 0.06 * (ev.level ?? 1) });
+    else if (ev.kind === 'ride') drumNoise(t, { hp: 5200, dur: 0.11, level: 0.05 * (ev.level ?? 1) });
+  });
+  const barSec = piece.beatsPerBar * spb;
+  if (onBar) for (let b = 0; b < piece.barCount; b++) timers.push(setTimeout(() => onBar(b), (0.06 + b * barSec) * 1000));
+  if (onDone) timers.push(setTimeout(onDone, (0.06 + piece.barCount * barSec + 1.6) * 1000));
+  return piece.barCount * barSec;
+}
+
+function stopAll() {
+  timers.forEach(clearTimeout); timers = [];
+  if (!ctx) return;
+  active.forEach((s) => { try { s.stop(); } catch (e) { /* already stopped */ } });
+  active.clear();
+}
+const audio = { playChord, playPolychord, playTetrad, playProgression, playPiece, stopAll };
+/* ══════ composer.js ══════ */
+/* =====================================================================
+   composer.js — from progression to performance.
+   Takes the study's bars and a genre, returns a scheduled piece:
+   note and drum events in beats, one bar per chord.
+   Deterministic per progression (seeded), so a brand's song is stable.
+   ===================================================================== */
+
+/* tiny seeded PRNG — the same study always composes the same piece */
+function mulberry(seed) {
+  return () => {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const pcOf = (iv) => ((iv % 12) + 12) % 12;
+
+function anatomy(chord) {
+  const tones = [...new Set(chord.intervals.map(pcOf))];
+  const third = tones.includes(4) ? 4 : tones.includes(3) ? 3 : 4;
+  const seventh = tones.includes(10) ? 10 : tones.includes(11) ? 11 : null;
+  return { root: pcOf(chord.rootSemitone), third, fifth: 7, seventh, tones };
+}
+
+/* anchored registers */
+const bassRoot = (pc) => { let m = 36 + pc; if (m > 44) m -= 12; return m; };   // ~E1–A♭2
+const compRoot = (pc) => { let m = 60 + pc; if (m > 66) m -= 12; return m; };   // ~F3–F♯4
+const melRoot = (pc) => { let m = 72 + pc; if (m > 78) m -= 12; return m; };    // ~G4–G♭5
+
+/* melodic sets: pentatonic flavor drawn from the chord quality */
+const melodySet = (a) => (a.third === 3 ? [0, 3, 5, 7, 10, 12, 15] : [0, 2, 4, 7, 9, 12, 14]);
+
+function composePiece(bars, genre) {
+  const rng = mulberry(bars.reduce((s, b, i) => s + b.chord.rootSemitone * (i + 7), genre.length * 31));
+  const events = [];
+  const note = (midi, t, dur, level) => events.push({ kind: 'note', midi, t, dur, level });
+  const drum = (kind, t, level = 1) => events.push({ kind, t, level });
+  const n = bars.length;
+
+  if (genre === 'jazz') {
+    const bpm = 126;
+    bars.forEach((bar, bi) => {
+      const a = anatomy(bar.chord);
+      const t0 = bi * 4;
+      const last = bi === n - 1;
+      const bR = bassRoot(a.root), cR = compRoot(a.root);
+      // walking bass: root — color — fifth — chromatic approach to the next root
+      const nextRoot = bassRoot(anatomy(bars[(bi + 1) % n].chord).root);
+      const walk = last
+        ? [bR, bR + a.third, bR + 7, bR]
+        : [bR, bR + (rng() > 0.5 ? a.third : 7), bR + (rng() > 0.5 ? 7 : a.third - 12 + 12), nextRoot + (rng() > 0.5 ? -1 : 1)];
+      walk.forEach((m, k) => note(m, t0 + k, 0.95, 0.2));
+      // comping: rootless voicing (3–7–9), Charleston-ish swung hits
+      const voicing = [cR + a.third, cR + (a.seventh ?? 10), cR + 14];
+      const hits = last ? [0] : rng() > 0.5 ? [0, 1.66] : [0.66, 2.66];
+      hits.forEach((h) => voicing.forEach((m) => note(m, t0 + h, last ? 3.2 : 0.4, 0.16)));
+      // ride pattern: ding — ding-a — ding
+      [0, 1, 1.66, 2, 3, 3.66].forEach((h) => drum('ride', t0 + h, h % 1 ? 0.6 : 1));
+      if (!last) { drum('hat', t0 + 1); drum('hat', t0 + 3); }
+    });
+  } else if (genre === 'pop') {
+    const bpm = 104;
+    // one hook, repeated: same rhythm and contour transposed over every chord
+    const hookRhythm = [0, 0.5, 1, 2, 2.5];
+    const hookDegrees = [4, 2, 1, 2, 0].map((d) => (rng() > 0.7 ? d + 1 : d));
+    bars.forEach((bar, bi) => {
+      const a = anatomy(bar.chord);
+      const t0 = bi * 4;
+      const last = bi === n - 1;
+      const bR = bassRoot(a.root), cR = compRoot(a.root), mR = melRoot(a.root);
+      const set = melodySet(a);
+      // drums: kick 1 & 3, snare 2 & 4, hats on 8ths
+      drum('kick', t0); drum('kick', t0 + 2);
+      if (!last && rng() > 0.6) drum('kick', t0 + 3.5, 0.7);
+      drum('snare', t0 + 1); drum('snare', t0 + 3);
+      for (let h = 0; h < 8; h++) drum('hat', t0 + h * 0.5, h % 2 ? 0.5 : 0.8);
+      // left hand: pumping roots
+      for (let h = 0; h < 8; h++) note(bR + (h % 4 === 3 ? 7 : 0), t0 + h * 0.5, 0.5, h % 2 ? 0.1 : 0.15);
+      // right hand: chord pump
+      const triad = [cR, cR + a.third, cR + 7];
+      for (let h = 0; h < 8; h++) triad.forEach((m) => note(m, t0 + h * 0.5, 0.5, h === 0 ? 0.17 : 0.11));
+      // the hook
+      if (last) { note(mR + 12, t0, 3.4, 0.3); note(mR, t0, 3.4, 0.24); }
+      else hookRhythm.forEach((h, k) => note(mR + set[hookDegrees[k] % set.length], t0 + h, k === hookRhythm.length - 1 ? 1.2 : 0.5, 0.26));
+    });
+    return { events, bpm, beatsPerBar: 4, barCount: n };
+  } else {
+    // classical: broken-chord accompaniment, voice-led melody
+    const bpm = 88;
+    let prevMel = null;
+    bars.forEach((bar, bi) => {
+      const a = anatomy(bar.chord);
+      const t0 = bi * 4;
+      const last = bi === n - 1;
+      const bR = bassRoot(a.root) + 12, mR = melRoot(a.root);
+      const set = melodySet(a);
+      // left hand: flowing eighths through the chord
+      const pat = last ? [0, 7, 12, 12 + a.third] : [0, 7, 12, 7, 12 + a.third, 7, 12, 7];
+      pat.forEach((iv, k) => note(bR + iv, t0 + k * 0.5, 0.6, 0.15));
+      // melody: nearest-step walk through the chord's set, cadencing on the root
+      if (last) { note(mR, t0, 3.6, 0.3); note(mR - 12 + a.third, t0 + 0.02, 3.6, 0.18); }
+      else {
+        const candidates = set.map((s) => mR + s);
+        for (let beat = 0; beat < 4; beat++) {
+          let pick;
+          if (prevMel == null) pick = mR + set[2];
+          else if (beat === 3) pick = candidates.reduce((x, y) => (Math.abs(y - prevMel) < Math.abs(x - prevMel) ? y : x), mR);
+          else {
+            const near = candidates.filter((c) => Math.abs(c - prevMel) <= 4 && c !== prevMel);
+            pick = near.length ? near[Math.floor(rng() * near.length)] : mR + set[Math.floor(rng() * set.length)];
+          }
+          note(pick, t0 + beat, 0.95, 0.28);
+          prevMel = pick;
+        }
+      }
+    });
+    return { events, bpm, beatsPerBar: 4, barCount: n };
+  }
+  return { events, bpm: 126, beatsPerBar: 4, barCount: n };
+}
+/* ══════ wheel.js ══════ */
+/* =====================================================================
+   wheel.js — the circle of fifths, drawn.
+   Twelve nodes (key + archetype), four position-orbs, gap-chords
+   whose color is their consonance, and the journey arc.
+   Returns SVG markup; app.js wires the events.
+   ===================================================================== */
+
+const LENS_COLOR = {
+  identity: '#f0ad1f', audience: '#159f87', image: '#2c53c9', aspiration: '#e8402a',
+};
+
+/* consonance → color: teal (kin) through gold to cadmium red (crisis) */
+function gapColor(d) {
+  return ['#159f87', '#5aa757', '#f0ad1f', '#ef8b1d', '#ec6a20', '#ea5325', '#e8402a'][d] || '#e8402a';
+}
+
+const CX = 330, CY = 330, R = 244, SIZE = 660;
+const rad = (deg) => (deg * Math.PI) / 180;
+const angleOf = (i) => -90 + wrap(i) * 30;
+const pt = (i, r = R) => {
+  const a = rad(angleOf(i));
+  return [CX + r * Math.cos(a), CY + r * Math.sin(a)];
+};
+
+function arcPath(i, j, r = R) {
+  // short clockwise arc from node i to node j along the ring
+  const [x1, y1] = pt(i, r), [x2, y2] = pt(j, r);
+  const sweep = 1; // callers pass consecutive clockwise nodes
+  return `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 ${sweep} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+}
+
+/* options: { positions: {lensId: {index, mode}}, gaps: [{id, a, b, ai, bi, dist}],
+              journey: {path:[idx…], dir} | null, activeGap: id|null }        */
+function renderWheel(opts = {}) {
+  const { positions = null, gaps = [], journey = null } = opts;
+  let s = `<svg class="wheel" viewBox="0 0 ${SIZE} ${SIZE}" role="img" aria-label="circle of fifths with brand positions">`;
+  s += `<defs>
+    <filter id="orbglow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+  // quadrant halos (arcs of three keys)
+  const quadArc = (startIdx, color) => {
+    const a1 = rad(angleOf(startIdx) - 13), a2 = rad(angleOf(startIdx + 2) + 13);
+    const r0 = R;
+    const p1 = [CX + r0 * Math.cos(a1), CY + r0 * Math.sin(a1)];
+    const p2 = [CX + r0 * Math.cos(a2), CY + r0 * Math.sin(a2)];
+    return `<path d="M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} A ${r0} ${r0} 0 0 1 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}" class="quadarc" stroke="${color}"/>`;
+  };
+  s += quadArc(11, 'rgba(240,173,31,.16)'); // the open: F C G
+  s += quadArc(2, 'rgba(21,159,135,.16)');  // the near: D A E
+  s += quadArc(5, 'rgba(232,64,42,.14)');   // the forge: B F# Db
+  s += quadArc(8, 'rgba(44,83,201,.14)');   // the keep: Ab Eb Bb
+
+  s += `<circle cx="${CX}" cy="${CY}" r="${R}" class="ring"/>`;
+
+  // journey arc (under the chords, over the ring)
+  if (journey && journey.path && journey.path.length > 1) {
+    for (let k = 0; k + 1 < journey.path.length; k++) {
+      const i = journey.path[k], j = journey.path[k + 1];
+      const cwNext = wrap(i + 1) === wrap(j);
+      const d = cwNext ? arcPath(i, j) : arcPath(j, i);
+      s += `<path d="${d}" class="journeyarc flow" filter="url(#softglow)"/>`;
+    }
+  }
+
+  // gap chords (interior curves)
+  gaps.forEach((g) => {
+    if (g.ai === g.bi) return; // unison: no line to draw
+    const [x1, y1] = pt(g.ai, R - 26), [x2, y2] = pt(g.bi, R - 26);
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    const pull = 0.28 + 0.6 * (circleDistance(g.ai, g.bi) / 6); // farther = deeper through the middle
+    const cx2 = mx + (CX - mx) * pull, cy2 = my + (CY - my) * pull;
+    s += `<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${cx2.toFixed(1)} ${cy2.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}"
+      class="gapchord" data-gap="${g.id}" stroke="${gapColor(g.dist)}"/>`;
+  });
+
+  // the twelve nodes
+  ARCHETYPES.forEach((a, i) => {
+    const [x, y] = pt(i);
+    const [lx, ly] = pt(i, R + 40);
+    const dim = positions && !Object.values(positions).some((p) => p.index === i)
+      && !(journey && journey.path && journey.path.includes(i));
+    s += `<g class="node ${dim ? 'dim' : ''}" data-idx="${i}">
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" class="tick"/>
+      <text x="${x.toFixed(1)}" y="${(y + 1).toFixed(1)}" class="keylabel" dy="-14">${pretty(a.key)}</text>
+      <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="archlabel">${a.name.replace('The ', '')}</text>
+    </g>`;
+  });
+
+  // position orbs — stacked inward when several share a key
+  if (positions) {
+    const byIndex = {};
+    Object.entries(positions).forEach(([lens, p]) => {
+      (byIndex[p.index] = byIndex[p.index] || []).push({ lens, ...p });
+    });
+    Object.entries(byIndex).forEach(([idx, list]) => {
+      list.forEach((p, slot) => {
+        const [x, y] = pt(+idx, R - 34 - slot * 30);
+        const c = LENS_COLOR[p.lens];
+        const ring = p.mode === 'minor'
+          ? `<circle cx="${x}" cy="${y}" r="15" class="minorring" stroke="${c}"/>` : '';
+        s += `<g class="orb" data-lens="${p.lens}">
+          <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9.5" fill="${c}" class="orbdot"/>
+          ${ring}
+        </g>`;
+      });
+    });
+  }
+
+  s += `</svg>`;
+  return s;
+}
+/* ══════ square.js ══════ */
+/* =====================================================================
+   square.js — the Greimas square, drawn.
+   S1 and S2 across the top (contraries), their negations beneath,
+   implication up the sides, contradiction across the diagonals —
+   and the four brand positions plotted inside the territory.
+   ===================================================================== */
+
+const W = 760, H = 560;
+const L = 150, Rt = 610, T = 120, B = 440; // corner coordinates
+
+/* study: output of runStudy; lenses carry .x (-1..1) and .yPlot (0..1) */
+function renderSquare(study) {
+  const { square } = study;
+  const a1 = byId[square.s1.id], a2 = byId[square.s2.id];
+
+  const plotX = (x) => L + 60 + (1 - (x + 1) / 2) * (Rt - L - 120); // x = +1 → left corner (S1)
+  const plotY = (yp) => B - 24 - yp * (B - T - 48);
+
+  let s = `<svg class="gsquare" viewBox="0 0 ${W} ${H}" role="img" aria-label="semiotic square with brand positions">`;
+  s += `<defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9" fill="none" stroke="rgba(255,247,237,.5)" stroke-width="1.4"/>
+    </marker>
+    <filter id="sqglow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+  // relations
+  s += `<line x1="${L}" y1="${T}" x2="${Rt}" y2="${T}" class="rel contraries"/>`;
+  s += `<line x1="${L}" y1="${B}" x2="${Rt}" y2="${B}" class="rel subcontraries"/>`;
+  s += `<line x1="${L}" y1="${B - 26}" x2="${L}" y2="${T + 26}" class="rel implication" marker-end="url(#arr)"/>`;
+  s += `<line x1="${Rt}" y1="${B - 26}" x2="${Rt}" y2="${T + 26}" class="rel implication" marker-end="url(#arr)"/>`;
+  s += `<line x1="${L + 18}" y1="${T + 14}" x2="${Rt - 18}" y2="${B - 14}" class="rel contradiction"/>`;
+  s += `<line x1="${Rt - 18}" y1="${T + 14}" x2="${L + 18}" y2="${B - 14}" class="rel contradiction"/>`;
+
+  // relation captions
+  s += `<text x="${(L + Rt) / 2}" y="${T - 46}" class="relcap">contraries — the tension that generates the territory</text>`;
+  s += `<text x="${(L + Rt) / 2}" y="${B + 52}" class="relcap">the neutral band — meaning withheld</text>`;
+  s += `<text x="${L - 24}" y="${(T + B) / 2}" class="relcap side" transform="rotate(-90 ${L - 24} ${(T + B) / 2})">implication</text>`;
+  s += `<text x="${Rt + 24}" y="${(T + B) / 2}" class="relcap side" transform="rotate(90 ${Rt + 24} ${(T + B) / 2})">implication</text>`;
+
+  // corners
+  const corner = (x, y, term, sub, anchor) => `
+    <g class="corner" text-anchor="${anchor}">
+      <text x="${x}" y="${y - 14}" class="cterm">${term}</text>
+      <text x="${x}" y="${y + 10}" class="csub">${sub}</text>
+    </g>`;
+  s += corner(L, T, square.s1.term, `${a1.name} — ${pretty(a1.key)}`, 'start');
+  s += corner(Rt, T, square.s2.term, `${a2.name} — ${pretty(a2.key)}`, 'end');
+  s += corner(L, B + 6, `not-${square.s2.term.toLowerCase()}`, square.s2.not, 'start');
+  s += corner(Rt, B + 6, `not-${square.s1.term.toLowerCase()}`, square.s1.not, 'end');
+
+  // the four positions — with a small layout pass so clustered orbs and
+  // their labels stay legible: overlapping orbs fan out horizontally,
+  // labels in a cluster stack at increasing offsets
+  const pts = ['identity', 'audience', 'image', 'aspiration'].map((lens) => {
+    const Lz = study[lens];
+    return { lens, mode: Lz.mode, x: plotX(Lz.x), y: plotY(Lz.yPlot) };
+  });
+  // separate orbs that sit on top of each other
+  for (let i = 0; i < pts.length; i++) {
+    for (let j = i + 1; j < pts.length; j++) {
+      const dx = pts[j].x - pts[i].x, dy = pts[j].y - pts[i].y;
+      if (Math.hypot(dx, dy) < 22) { pts[j].x += dx >= 0 ? 22 : -22; }
+    }
+  }
+  // labels: within a cluster, stack alternating above/below at growing gaps
+  const LABEL_SLOTS = [-22, 32, -40, 50];
+  pts.forEach((p) => {
+    const cluster = pts.filter((o) => Math.abs(o.x - p.x) < 90 && Math.abs(o.y - p.y) < 46);
+    p.slot = cluster.indexOf(p) >= 0 ? cluster.findIndex((o) => o === p) : 0;
+  });
+  pts.forEach((p) => {
+    const c = LENS_COLOR[p.lens];
+    const labelY = p.y + LABEL_SLOTS[p.slot % LABEL_SLOTS.length];
+    const ring = p.mode === 'minor' ? `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="15" class="minorring" stroke="${c}"/>` : '';
+    s += `<g class="orb">
+      <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="9.5" fill="${c}" class="orbdot"/>${ring}
+      <text x="${p.x.toFixed(1)}" y="${labelY.toFixed(1)}" class="orblabel" fill="${c}">${p.lens}</text>
+    </g>`;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+/* ══════ app.js ══════ */
+/* =====================================================================
+   app.js — the conductor.
+   Screen flow: landing → setup → assessment (four movements) →
+   the reading (square) → the sound (wheel) → the movement (journey) →
+   the lead sheet. Plus the field notes (methodology).
+   ===================================================================== */
+
+const LENS_ORDER = ['identity', 'audience', 'image', 'aspiration'];
+const MOVEMENT_NUMERALS = ['I', 'II', 'III', 'IV'];
+const ITEMS_PER_LENS = 7; // six axes + one valence
+
+const state = {
+  screen: 'landing',
+  brandName: '',
+  answers: null,
+  lens: 0, item: 0,
+  study: null, prog: null, gaps: null,
+  destIdx: null, destMode: 'major', destVia: null, // the chosen future
+  cameFrom: 'landing',
+};
+
+const stage = document.getElementById('stage');
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* register a chord for audio: keep roots in a warm octave */
+const reg = (pc) => 48 + (pc > 7 ? pc - 12 : pc);
+const playable = (c) => ({ rootMidi: reg(c.rootSemitone), intervals: c.intervals });
+
+function setScreen(name) {
+  audio.stopAll();
+  state.screen = name;
+  stage.classList.add('leaving');
+  setTimeout(() => {
+    stage.innerHTML = RENDER[name]();
+    WIRE[name] && WIRE[name]();
+    stage.classList.remove('leaving');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    armReveals();
+  }, 260);
+}
+
+/* collage pieces paste themselves down as they scroll into view */
+let revealObserver = null;
+function armReveals() {
+  if (revealObserver) revealObserver.disconnect();
+  revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add('pasted'); revealObserver.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  qa('.movecard, .roadrow, .sayrow, .gaprow, .phase, .poscard, .preset, .measure, .nowcard').forEach((el, i) => {
+    el.classList.add('reveal');
+    el.style.transitionDelay = `${(i % 6) * 55}ms`;
+    revealObserver.observe(el);
+  });
+}
+
+function freshAnswers() {
+  const a = {};
+  LENS_ORDER.forEach((l) => { a[l] = { axes: new Array(6).fill(null), valence: null }; });
+  return a;
+}
+
+/* ---- study assembly ---------------------------------------------- */
+function finishStudy() {
+  state.study = runStudy(state.answers);
+  LENS_ORDER.forEach((l) => { state.study[l].arch = byId[state.study[l].dominantId]; });
+  state.gaps = GAP_DEFS.map((g, i) => {
+    const ai = state.study[g.a].index, bi = state.study[g.b].index;
+    return { ...g, id: 'g' + i, ai, bi, dist: circleDistance(ai, bi) };
+  });
+  // default destination: the stated ambition, until a future is chosen
+  chooseDestination(state.study.aspiration.index, state.study.aspiration.mode, 'stated');
+  setScreen('reading');
+}
+
+function chooseDestination(destIdx, destMode, via) {
+  state.destIdx = wrap(destIdx);
+  state.destMode = destMode || 'major';
+  state.destVia = via;
+  const genre = via === 'jazz' || via === 'pop' ? via : 'classical';
+  state.prog = fullProgression(state.study, state.destIdx, state.destMode, genre);
+}
+
+function bridgeFor(fromIdx, toIdx) {
+  const f = ARCHETYPES[wrap(fromIdx)].id, t = ARCHETYPES[wrap(toIdx)].id;
+  if (BRIDGES[`${f}>${t}`]) return { ...BRIDGES[`${f}>${t}`], reversed: false };
+  return { ...BRIDGES[`${t}>${f}`], reversed: true };
+}
+
+function governingGap() {
+  return state.gaps.reduce((m, g) => (g.dist > m.dist ? g : m), state.gaps[0]);
+}
+
+const modeWord = (m) => (m === 'minor' ? 'minor' : 'major');
+const posLine = { identity: 'essence', audience: 'audienceLine', image: 'imageLine', aspiration: 'aspirationLine' };
+
+/* =====================================================================
+   RENDERERS
+   ===================================================================== */
+const RENDER = {};
+const WIRE = {};
+
+/* ---- landing ------------------------------------------------------ */
+function teaserSVG() {
+  // a miniature circle of fifths: keys, four sample position orbs,
+  // one consonant chord (C–G) and one tritone (C–F♯), dashed ring spinning
+  const KEYS = ['C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'D♭', 'A♭', 'E♭', 'B♭', 'F'];
+  const pt = (i, r) => {
+    const a = ((-90 + i * 30) * Math.PI) / 180;
+    return [170 + r * Math.cos(a), 170 + r * Math.sin(a)];
+  };
+  let s = `<svg class="teaser" viewBox="0 0 340 340" aria-label="miniature circle of fifths with brand positions">`;
+  s += `<g class="tring"><circle cx="170" cy="170" r="152" fill="none" stroke="var(--ink)" stroke-opacity=".5" stroke-width="1.6" stroke-dasharray="4 8"/></g>`;
+  s += `<circle cx="170" cy="170" r="132" fill="none" stroke="var(--ink)" stroke-opacity=".55" stroke-width="1.8"/>`;
+  KEYS.forEach((k, i) => {
+    const [tx, ty] = pt(i, 132);
+    const [lx, ly] = pt(i, 110);
+    s += `<circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="3" fill="var(--ink)"/>`;
+    s += `<text x="${lx.toFixed(1)}" y="${(ly + 5).toFixed(1)}" text-anchor="middle" fill="var(--ink)" style="font-family:'Cormorant Garamond',Georgia,serif;font-size:17px">${k}</text>`;
+  });
+  const [cx1, cy1] = pt(0, 132), [gx, gy] = pt(1, 132), [fx, fy] = pt(6, 132);
+  s += `<path d="M ${cx1} ${cy1} Q 205 92 ${gx.toFixed(1)} ${gy.toFixed(1)}" fill="none" stroke="#159f87" stroke-width="3.5"/>`;
+  s += `<path d="M ${cx1} ${cy1} Q 178 170 ${fx} ${fy}" fill="none" stroke="#e8402a" stroke-width="3.5" stroke-dasharray="7 5"/>`;
+  [[0, '#f0ad1f'], [1, '#159f87'], [6, '#e8402a'], [10, '#2c53c9']].forEach(([i, c]) => {
+    const [x, y] = pt(i, 132);
+    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8.5" fill="${c}" class="orbdot"/>`;
+  });
+  s += `</svg>`;
+  return s;
+}
+
+RENDER.landing = () => `
+  <section class="hero">
+    <div class="herogrid">
+      <div>
+        <p class="overline">a semiotic study · in twelve keys</p>
+        <h1 class="title">${APP.title}</h1>
+        ${APP.landing.map((p) => `<p class="lede">${p}</p>`).join('')}
+        <div class="btnrow">
+          <button class="btn big c-red" data-act="begin"><span class="btnmain">begin a study</span><span class="btnsub">four movements · about three minutes</span></button>
+          <button class="btn big c-blue" data-act="demo"><span class="btnmain">ride a demo brand</span><span class="btnsub">three brands, already played</span></button>
+          <button class="btn big c-gold" data-act="notes"><span class="btnmain">field notes</span><span class="btnsub">how the map works</span></button>
+        </div>
+      </div>
+      <div class="teaserwrap">
+        ${teaserSVG()}
+        <span class="stickerchord sc1">F♯7♯9</span>
+        <span class="stickerchord sc2">IV → I</span>
+        <span class="stickerchord sc3">diabolus!</span>
+        <p class="teasecap">twelve archetypes · twelve keys · four positions of one brand</p>
+      </div>
+    </div>
+  </section>`;
+
+WIRE.landing = () => {
+  q('[data-act=begin]').onclick = () => { state.cameFrom = 'setup'; setScreen('setup'); };
+  q('[data-act=demo]').onclick = () => setScreen('setup');
+  q('[data-act=notes]').onclick = () => { state.cameFrom = 'landing'; setScreen('notes'); };
+};
+
+/* ---- setup -------------------------------------------------------- */
+RENDER.setup = () => `
+  <section class="panel narrow">
+    <p class="overline">the subject</p>
+    <h2 class="h2">Name the brand</h2>
+    <p class="body">A real one you know intimately, or one you are imagining into being. The study asks you to answer from four positions — as the brand’s conscience, as its people, as its reputation, as its future — so choose one you can speak for.</p>
+    <div class="namerow">
+      <input id="brandname" class="input" type="text" placeholder="the brand’s name" maxlength="40" autocomplete="off"/>
+      <button class="btn primary" data-act="start">begin the four movements</button>
+    </div>
+    <div class="ruleline"><span>or ride a study already played</span></div>
+    <div class="presets">
+      ${PRESETS.map((p) => `
+        <button class="preset" data-preset="${p.id}">
+          <span class="pname">${p.name}</span>
+          <span class="psector">${p.sector}</span>
+          <span class="pblurb">${p.blurb}</span>
+          <span class="pgo">hear this study →</span>
+        </button>`).join('')}
+    </div>
+    <p class="backlink"><a data-act="back">← back</a></p>
+  </section>`;
+
+WIRE.setup = () => {
+  const input = q('#brandname');
+  input.value = state.brandName || '';
+  setTimeout(() => input.focus(), 350);
+  const start = () => {
+    state.brandName = input.value.trim() || 'the brand';
+    state.answers = freshAnswers();
+    state.lens = 0; state.item = 0;
+    setScreen('assess');
+  };
+  q('[data-act=start]').onclick = start;
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') start(); });
+  qa('[data-preset]').forEach((el) => el.onclick = () => {
+    const p = PRESETS.find((x) => x.id === el.dataset.preset);
+    state.brandName = p.name;
+    state.answers = JSON.parse(JSON.stringify(p.answers));
+    finishStudy();
+  });
+  q('[data-act=back]').onclick = () => setScreen('landing');
+};
+
+/* ---- assessment --------------------------------------------------- */
+RENDER.assess = () => {
+  state.item = Math.min(state.item, ITEMS_PER_LENS - 1); // never render past the valence item
+  const lens = LENSES[state.lens];
+  const isValence = state.item === 6;
+  const progress = LENS_ORDER.map((l, li) => `
+    <span class="pgroup ${li === state.lens ? 'now' : ''}">
+      ${Array.from({ length: ITEMS_PER_LENS }, (_, ii) => {
+        const done = li < state.lens || (li === state.lens && ii < state.item);
+        return `<i class="dot ${done ? 'done' : ''} ${li === state.lens && ii === state.item ? 'here' : ''}"></i>`;
+      }).join('')}
+    </span>`).join('');
+
+  let body;
+  if (!isValence) {
+    const ax = AXES[state.item];
+    const [sa, sb] = ax.statements[lens.id];
+    body = `
+      <p class="axisname">${ax.gloss}</p>
+      <div class="pair">
+        <div class="statement" data-side="a"><p>${sa}</p></div>
+        <div class="vs">or</div>
+        <div class="statement" data-side="b"><p>${sb}</p></div>
+      </div>
+      <div class="choices">
+        <button class="btn choice" data-side="a" data-strength="2">the first, strongly</button>
+        <button class="btn choice" data-side="a" data-strength="1">the first, on balance</button>
+        <button class="btn choice" data-side="b" data-strength="1">the second, on balance</button>
+        <button class="btn choice" data-side="b" data-strength="2">the second, strongly</button>
+      </div>`;
+  } else {
+    const v = lens.valence;
+    body = `
+      <p class="axisname">${v.q}</p>
+      <div class="choices stacked">
+        <button class="btn choice wide" data-valence="major">${v.major}</button>
+        <button class="btn choice wide" data-valence="minor">${v.minor}</button>
+      </div>
+      <p class="hint">This sets the mode — major or minor — in which this position will sound.</p>`;
+  }
+
+  return `
+  <section class="panel narrow">
+    <div class="progress">${progress}</div>
+    <p class="overline">movement ${MOVEMENT_NUMERALS[state.lens]} of IV · ${esc(state.brandName)}</p>
+    <h2 class="h2">${lens.title}</h2>
+    <p class="lensprompt">${lens.prompt}</p>
+    ${body}
+    <p class="backlink">${state.lens + state.item > 0 ? '<a data-act="prev">← previous</a>' : '<a data-act="quit">← abandon study</a>'}</p>
+  </section>`;
+};
+
+WIRE.assess = () => {
+  const lensId = LENSES[state.lens].id;
+  let answered = false; // one answer per item
+  let advanced = false; // and exactly one advance, however it is triggered
+  const advance = () => {
+    if (advanced) return;
+    advanced = true;
+    state.item++;
+    if (state.item >= ITEMS_PER_LENS) { state.item = 0; state.lens++; }
+    if (state.lens >= 4) { finishStudy(); return; }
+    setScreen('assess');
+  };
+  qa('.choice[data-strength]').forEach((el) => el.onclick = () => {
+    if (answered) { advance(); return; } // a second tap nudges forward, never double-advances
+    answered = true;
+    state.answers[lensId].axes[state.item] = { side: el.dataset.side, strength: +el.dataset.strength };
+    el.classList.add('picked');
+    setTimeout(advance, 240);
+  });
+  qa('.choice[data-valence]').forEach((el) => el.onclick = () => {
+    if (answered) { advance(); return; }
+    answered = true;
+    state.answers[lensId].valence = el.dataset.valence;
+    el.classList.add('picked');
+    setTimeout(advance, 240);
+  });
+  const prev = q('[data-act=prev]');
+  if (prev) prev.onclick = () => {
+    if (state.item === 0) { state.lens--; state.item = ITEMS_PER_LENS - 1; } else state.item--;
+    setScreen('assess');
+  };
+  const quit = q('[data-act=quit]');
+  if (quit) quit.onclick = () => setScreen('landing');
+};
+
+/* ---- the reading (semiotic square) -------------------------------- */
+RENDER.reading = () => {
+  const st = state.study;
+  const s1 = st.square.s1, s2 = st.square.s2;
+  const idA = st.identity.arch;
+  const positions = LENS_ORDER.map((l) => {
+    const L = st[l];
+    const lensDef = LENSES.find((x) => x.id === l);
+    const loose = L.yPlot < 0.3;
+    return `
+      <div class="poscard" style="--c:${LENS_COLOR[l]}">
+        <p class="poslens">${lensDef.title} <span class="posnote">· ${lensDef.poetic}</span></p>
+        <p class="posarch">${L.arch.name} — ${pretty(L.arch.key)} ${modeWord(L.mode)}</p>
+        <p class="body">${L.arch[posLine[l]]}</p>
+        ${L.mode === 'minor' ? `<p class="minornote">${MODE_GLOSS.minor}. In shadow: ${L.arch.shadow}.</p>` : ''}
+        ${loose ? `<p class="minornote">Held loosely — this position drifts toward the square’s neutral band, where meaning goes unclaimed.</p>` : ''}
+      </div>`;
+  }).join('');
+
+  return `
+  <section class="panel">
+    <p class="overline">${esc(state.brandName)} · the reading</p>
+    <h2 class="h2">The territory of meaning</h2>
+    <p class="body">${esc(state.brandName)} composes itself around <strong>${s1.term}</strong> — the governing value of ${s1.id === idA.id ? 'its identity, ' : ''}${idA.name}. Every claim of ${s1.term.toLowerCase()} summons its contrary, <strong>${s2.term}</strong> (${byId[s2.id].name}), and between value, counter-value and their negations a territory opens. The four positions of the brand are plotted inside it.</p>
+    ${renderSquare(st)}
+    <div class="poscards">${positions}</div>
+    <div class="btnrow"><button class="btn primary" data-act="next">now hear it →</button></div>
+  </section>`;
+};
+
+WIRE.reading = () => { q('[data-act=next]').onclick = () => setScreen('sound'); };
+
+/* ---- the sound (circle of fifths + gaps) --------------------------- */
+RENDER.sound = () => {
+  const st = state.study;
+  const gov = governingGap();
+  const positions = {};
+  LENS_ORDER.forEach((l) => { positions[l] = { index: st[l].index, mode: st[l].mode }; });
+
+  const legend = LENS_ORDER.map((l) => {
+    const d = LENSES.find((x) => x.id === l);
+    return `<button class="chip" data-poslens="${l}" style="--c:${LENS_COLOR[l]}"><i class="swatch"></i>${d.short} — ${pretty(st[l].arch.key)} ${modeWord(st[l].mode)} <span class="playglyph">▸</span></button>`;
+  }).join('');
+
+  const gapRows = [...state.gaps].sort((a, b) => b.dist - a.dist).map((g) => {
+    const A = st[g.a], B = st[g.b];
+    const shadow = g.dist === 0 && A.mode !== B.mode;
+    const ic = shadow ? SHADOW_GAP : INTERVAL_CLASSES[g.dist];
+    const intervalName = shadow ? SHADOW_GAP.name : INTERVAL_CLASSES[g.dist].name;
+    return `
+      <div class="gaprow ${g.id === gov.id ? 'governing' : ''}" data-gaprow="${g.id}">
+        <div class="gaphead">
+          <span class="gapname">${g.name}${g.id === gov.id ? '<span class="govbadge">the governing tension</span>' : ''}</span>
+          <button class="btn small" data-playgap="${g.id}">▸ hear it</button>
+        </div>
+        <p class="gapkeys" style="color:${shadow ? '#cf8aae' : gapColor(g.dist)}">${pretty(A.arch.key)} ${A.mode === 'minor' ? 'minor' : ''} ↔ ${pretty(B.arch.key)} ${B.mode === 'minor' ? 'minor' : ''} — ${intervalName}</p>
+        <p class="gapq">${g.question}</p>
+        <p class="body">${ic.musical}. ${ic.strategic}</p>
+      </div>`;
+  }).join('');
+
+  return `
+  <section class="panel">
+    <p class="overline">${esc(state.brandName)} · the sound</p>
+    <h2 class="h2">Four positions, set ringing</h2>
+    <p class="body">Each position resolves to a key on the circle of fifths. Distance on the circle is harmonic distance: neighbors are kin, the far point is the tritone. Press anything.</p>
+    <div class="legend">${legend}</div>
+    ${renderWheel({ positions, gaps: state.gaps })}
+    <div class="nowcard">
+      <div>
+        <p class="posarch">the chord of now</p>
+        <p class="body">${LENS_ORDER.map((l) => pretty(st[l].arch.key)).join(' · ')} sounded together — the brand’s four positions as one sonority. This is what ${esc(state.brandName)} sounds like today.</p>
+      </div>
+      <button class="btn primary" data-act="tetrad">▸ the sound of now</button>
+    </div>
+    <div class="gaplist">${gapRows}</div>
+    <div class="btnrow"><button class="btn primary" data-act="next">compose the move →</button></div>
+  </section>`;
+};
+
+WIRE.sound = () => {
+  const st = state.study;
+  qa('[data-poslens]').forEach((el) => el.onclick = () => {
+    const l = el.dataset.poslens;
+    const sig = signatureChord(st[l].index, st[l].mode);
+    audio.stopAll();
+    audio.playChord(reg(sig.rootSemitone), sig.intervals, { duration: 2.8 });
+  });
+  qa('[data-playgap]').forEach((el) => el.onclick = () => {
+    const g = state.gaps.find((x) => x.id === el.dataset.playgap);
+    const triad = (lens) => (st[lens].mode === 'minor' ? [0, 3, 7] : [0, 4, 7]);
+    audio.playPolychord(reg(signatureChord(g.ai).rootSemitone), triad(g.a), reg(signatureChord(g.bi).rootSemitone), triad(g.b));
+  });
+  q('[data-act=tetrad]').onclick = () => {
+    audio.playTetrad(LENS_ORDER.map((l) => reg(signatureChord(st[l].index).rootSemitone)));
+  };
+  q('[data-act=next]').onclick = () => setScreen('futures');
+};
+
+/* ---- the possible futures (the harmonic options menu) -------------- */
+const REACH_WORDS = ['stay and deepen', 'one movement', 'one movement', 'two movements', 'two movements', 'two movements', 'two movements'];
+const EARSHOT_WORDS = ['on their note', 'in earshot', 'close by', 'a stretch to hear', 'far from them', 'far from them', 'their far point'];
+const BELIEF_WORDS = ['already believed', 'credible today', 'earnable', 'earnable', 'a hard sell', 'a hard sell', 'will meet doubt'];
+
+RENDER.futures = () => {
+  const st = state.study;
+  const home = st.identity;
+  const statedIdx = st.aspiration.index;
+  const dests = genreDests(home.index, st.audience.index, st.image.index);
+  const statedShown = GENRES.some((g) => dests[g.id] === statedIdx);
+
+  const chip = (label, word, dist) =>
+    `<span class="meterchip" style="--mc:${gapColor(dist)}"><i></i>${label}: ${word}</span>`;
+
+  const card = (g) => {
+    const destIdx = dests[g.id];
+    const dest = ARCHETYPES[destIdx];
+    const reach = circleDistance(home.index, destIdx);
+    const earshot = circleDistance(destIdx, st.audience.index);
+    const belief = circleDistance(destIdx, st.image.index);
+    let gloss = g.gloss.replaceAll('{dest}', `the ${dest.name.replace('The ', '')}`);
+    if (g.id === 'pop' && dests.popIsGearShift) {
+      gloss += ' You already stand on your people’s note — so this is the gear-shift: everything up a step, energy first.';
+    }
+    const stated = destIdx === statedIdx;
+    return `
+      <div class="movecard ${stated ? 'stated' : ''}" data-move="${g.id}">
+        <div class="movehead">
+          <span class="movetitle">${g.title}</span>
+          <span class="movemech">${g.tagline}</span>
+        </div>
+        <p class="movedest">→ ${dest.name} · ${pretty(dest.key)}${stated ? '<span class="statedbadge">your stated ambition</span>' : ''}</p>
+        <p class="body">${gloss}</p>
+        <div class="chiprow">
+          ${chip('reach', REACH_WORDS[reach], reach)}
+          ${chip('audience', EARSHOT_WORDS[earshot], earshot)}
+          ${chip('belief', BELIEF_WORDS[belief], belief)}
+        </div>
+        <div class="btnrow tight">
+          <button class="btn small" data-hearvia="${g.id}" data-heardest="${destIdx}">▸ hear it</button>
+          <button class="btn small primary" data-choose="${destIdx}" data-via="${g.id}">compose this →</button>
+        </div>
+      </div>`;
+  };
+
+  // the stated ambition, when no genre route lands on it: an honest footnote
+  let alsoran = '';
+  if (!statedShown) {
+    const dest = st.aspiration.arch;
+    const aud = circleDistance(statedIdx, st.audience.index);
+    const belief = circleDistance(statedIdx, st.image.index);
+    alsoran = `
+      <div class="alsoran">
+        <strong>Your stated ambition</strong> — ${dest.name} in ${pretty(dest.key)} — isn’t where any of the three genres naturally land
+        (audience: ${EARSHOT_WORDS[aud].toLowerCase()} · belief: ${BELIEF_WORDS[belief].toLowerCase()}).
+        It may still be right — strategy outranks arithmetic when it has a reason.
+        <a data-choose="${statedIdx}" data-via="stated">compose it anyway, by the book →</a>
+      </div>`;
+  }
+
+  return `
+  <section class="panel">
+    <p class="overline">${esc(state.brandName)} · the possible futures</p>
+    <h2 class="h2">Three ways forward — pick a genre</h2>
+    <p class="body">This is where the wheel stops describing and starts proposing. The same brand can move like <em>classical</em> (seamless, prepared, nothing to forgive), like <em>jazz</em> (a leap held in tension until the room leans in), or like <em>pop</em> (go where your people are and repeat the hook). Each genre picks its own destination from where ${esc(state.brandName)} stands. Press ▸ to hear each route played in its style.</p>
+    <div class="futures">${GENRES.map(card).join('')}</div>
+    ${alsoran}
+    <p class="hint">Choosing a route composes the plan and the brief for it. You can come back and choose differently.</p>
+  </section>`;
+};
+
+WIRE.futures = () => {
+  const st = state.study;
+  qa('[data-hearvia]').forEach((el) => el.onclick = () => {
+    const via = el.dataset.hearvia;
+    const dest = +el.dataset.heardest;
+    const prog = fullProgression(st, dest, 'major', via);
+    audio.playProgression(prog.bars.map((b) => playable(b.chord)), { secondsPerChord: via === 'pop' ? 1.1 : 1.4 });
+  });
+  qa('[data-choose]').forEach((el) => el.onclick = () => {
+    const dest = +el.dataset.choose;
+    const mode = dest === st.aspiration.index ? st.aspiration.mode : 'major';
+    chooseDestination(dest, mode, el.dataset.via);
+    setScreen('movement');
+  });
+};
+
+/* ---- the movement (two movements and an arrival) ------------------- */
+function expandPath(a, b) {
+  a = wrap(a); b = wrap(b);
+  const cw = wrap(b - a);
+  const sign = cw <= 6 ? +1 : -1;
+  const steps = Math.min(cw, 12 - cw);
+  return Array.from({ length: steps + 1 }, (_, k) => wrap(a + sign * k));
+}
+
+const MOVEMENT_TIME = ['now', 'next'];
+
+RENDER.movement = () => {
+  const st = state.study;
+  const { journey, cadence } = state.prog;
+  const A = st.identity, destA = ARCHETYPES[state.destIdx];
+  const cad = CADENCES[cadence];
+
+  // visual path for the wheel (per-fifth arc, purely presentational)
+  let path = [A.index];
+  journey.movements.forEach((m) => { path = path.concat(expandPath(m.from, m.to).slice(1)); });
+
+  let movementBlock;
+  if (journey.inPlace) {
+    movementBlock = `
+      <div class="phase">
+        <p class="phasename">the movement — deepen in ${pretty(A.arch.key)} <span class="posnote">· now</span></p>
+        <p class="body">Identity and destination share a key. The strategy is not movement but depth: the same chord voiced more fully, the position held with more conviction — and if the echo is minor, the work is re-voicing the third, not moving the tonic.</p>
+        <button class="btn small" data-playmvt="inplace">▸ hear the reaffirmation</button>
+      </div>`;
+  } else if (journey.genre) {
+    const g = GENRES.find((x) => x.id === journey.genre);
+    const audDist = circleDistance(state.destIdx, st.audience.index);
+    const audNote = audDist === 0 ? ' It lands exactly on your people’s note.' : audDist <= 1 ? ' It lands beside your people’s own position.' : '';
+    movementBlock = `
+      <div class="phase">
+        <p class="phasename">the ${g.title.toLowerCase()} route — ${pretty(A.arch.key)} → ${pretty(destA.key)} <span class="posnote">· now</span></p>
+        <p class="pivotline">${g.tagline}</p>
+        <p class="body">${g.moveWhy}${audNote}</p>
+        <p class="body chordline">${state.prog.bars.slice(1).map((c) => `<span class="chordtok">${c.chord.label}<i>${c.chord.roman}</i></span>`).join(' ')}</p>
+        <button class="btn small" data-playmvt="genre">▸ hear the route</button>
+      </div>`;
+  } else {
+    movementBlock = journey.movements.map((m, i) => {
+      const isFinal = i === journey.movements.length - 1;
+      const mc = movementChords(m, { resolve: !isFinal });
+      const fromA = ARCHETYPES[m.from], toA = ARCHETYPES[m.to];
+      const title = journey.movements.length === 1
+        ? `the movement — ${pretty(fromA.key)} → ${pretty(toA.key)}`
+        : m.type === 'turn'
+          ? `movement II — the turn · → ${pretty(toA.key)}`
+          : `movement I — the bridge · ${pretty(fromA.key)} → ${pretty(toA.key)}`;
+      let narrative;
+      if (m.type === 'turn') {
+        narrative = `Enter through ${toA.name}’s own grammar. Before the brand claims the new name, it behaves in the new syntax — ${toA.name.replace('The ', 'the ').toLowerCase()}’s ii–V, spoken in your own voice. First proof: ${toA.design.behavior[0].toLowerCase()}`;
+      } else if (m.dist === 1) {
+        const br = bridgeFor(m.from, m.to);
+        narrative = `${br.reversed ? `The bridge crossed the other way — <strong>${br.shared}</strong> is what survives the move. ` : `Shared ground: <strong>${br.shared}</strong>. `}${br.principle}`;
+      } else {
+        narrative = `Two fifths in one legible move: carry ${fromA.value.toLowerCase()} toward ${toA.value.toLowerCase()} through material both keys own.`;
+      }
+      return `
+        <div class="phase">
+          <p class="phasename">${title} <span class="posnote">· ${MOVEMENT_TIME[i] || 'next'}</span></p>
+          <p class="pivotline">pivot: ${mc.pivotLabel}</p>
+          <p class="body">${narrative}</p>
+          <p class="body chordline">${mc.chords.map((c) => `<span class="chordtok">${c.label}<i>${c.roman}</i></span>`).join(' ')}${isFinal ? '<span class="chordtok posnote">…</span>' : ''}</p>
+          <p class="body pivotgloss">${mc.pivotGloss}</p>
+          <button class="btn small" data-playmvt="${i}">▸ hear this movement</button>
+        </div>`;
+    }).join('');
+  }
+
+  return `
+  <section class="panel">
+    <p class="overline">${esc(state.brandName)} · the movement</p>
+    <h2 class="h2">${journey.inPlace ? `Deepening in ${pretty(A.arch.key)}` : journey.genre ? `From ${pretty(A.arch.key)} to ${pretty(destA.key)}, the ${journey.genre} way` : `From ${pretty(A.arch.key)} to ${pretty(destA.key)}, in ${journey.movements.length === 1 ? 'one movement' : 'two movements'}`}</h2>
+    <p class="body">${journey.genre === 'jazz' ? 'Jazz doesn’t sneak up on a key — it leaps, then makes the dissonance feel inevitable.' : journey.genre === 'pop' ? 'Pop doesn’t travel at all — it shows up where the audience already is and starts the chorus.' : 'A brand cannot leap to a distant key without losing the room — but it never needs more than a bridge and a turn.'} ${!journey.genre && journey.movements.length > 1 ? `The bridge passes near your people; the turn adopts the destination’s grammar.` : ''}</p>
+    ${renderWheel({ positions: Object.fromEntries(LENS_ORDER.map((l) => [l, { index: st[l].index, mode: st[l].mode }])), gaps: [], journey: { path } })}
+    ${movementBlock}
+    <div class="phase cadencecard">
+      <p class="phasename">the arrival — ${cad.name} (${cad.figure}) <span class="posnote">· the claim</span></p>
+      <p class="body">${cad.reading}</p>
+      <p class="body"><strong>In practice:</strong> ${cad.principle}</p>
+      <p class="body posnote">Chosen by the credibility gap: the reputation sits ${circleDistance(st.image.index, state.destIdx)} fifths from the destination.</p>
+      <button class="btn small" data-playmvt="cadence">▸ hear the arrival</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn ghost" data-act="back">← other futures</button>
+      <button class="btn primary" data-act="next">open the brief →</button>
+    </div>
+  </section>`;
+};
+
+WIRE.movement = () => {
+  const st = state.study;
+  const { journey, cadence } = state.prog;
+  qa('[data-playmvt]').forEach((el) => el.onclick = () => {
+    const v = el.dataset.playmvt;
+    let chords;
+    if (v === 'inplace') {
+      const k = st.identity.index;
+      chords = [chord(k, 0), chord(k, 3), chord(k, 4, { seventh: true }), chord(k, 0), chord(k, 3), chord(k, 0)];
+    } else if (v === 'genre') {
+      chords = state.prog.bars.map((b) => b.chord);
+    } else if (v === 'cadence') {
+      chords = [chord(state.destIdx, 4, { seventh: true })].concat(cadenceProgression(cadence, state.destIdx, state.destMode));
+    } else {
+      chords = movementChords(journey.movements[+v], { resolve: true }).chords;
+    }
+    audio.playProgression(chords.map(playable), { secondsPerChord: journey.genre === 'pop' ? 1.1 : 1.7 });
+  });
+  q('[data-act=back]').onclick = () => setScreen('futures');
+  q('[data-act=next]').onclick = () => setScreen('leadsheet');
+};
+
+/* ---- the brief ----------------------------------------------------- */
+const CADENCE_BAR_NOTES = {
+  authentic: ['arrive — {dest}'],
+  plagal: ['arrive — {dest}', 'the amen', 'settled'],
+  deceptive: ['the feint — vi', 'the promise again', 'arrive — earned'],
+};
+
+function annotateBars() {
+  const st = state.study;
+  const { cadence, bars } = state.prog;
+  const destA = ARCHETYPES[state.destIdx];
+  let cadStep = 0;
+  return bars.map((b) => {
+    let note = '';
+    if (b.tag === 'home') note = `home — ${st.identity.arch.epithet}`;
+    else if (b.tag === 'deepen') note = 'deepen in place';
+    else if (b.tag === 'cadence') {
+      const notes = CADENCE_BAR_NOTES[cadence] || [];
+      note = (notes[cadStep++] || CADENCES[cadence].name).replace('{dest}', destA.name);
+    } else if (b.pivot) note = `pivot — toward ${pretty(keyOf(state.destIdx))}`;
+    else if (b.chord.roman === 'I' || b.chord.roman === 'i') note = `anchor — ${ARCHETYPES[b.chord.keyIdx].name}`;
+    else if (b.chord.roman.startsWith('ii')) note = `the turn — ${destA.name.replace('The ', 'the ')}’s grammar`;
+    else if (b.chord.roman.startsWith('V7')) note = `V7 of ${pretty(b.chord.key)} — prepared`;
+    else note = `${b.chord.roman} of ${pretty(b.chord.key)}`;
+    return { ...b, note };
+  });
+}
+
+/* physics of the destination key → creative direction */
+const lightOf = (n) => n === 0
+  ? 'neutral daylight — white space and unmixed color'
+  : n > 0
+    ? ['', 'clear morning light, first contrast', 'bright and quick, confident contrast', 'vivid, high-key, saturated accents', 'glittering, high-energy, sharp edges', 'hard light, maximum contrast, compressed type', 'voltage — black plus one electric color'][n]
+    : ['', 'soft late-afternoon warmth, gentle contrast', 'burnished and settled — cream, bronze, low sheen', 'deep warmth, low light, generous space', 'dusk tones, interior light, velvet depth', 'twilight depth — indigo, violet, mercury'][-n];
+const motionOf = (n) => n >= 3 ? 'fast — snap easings, hard cuts, short travel'
+  : n > 0 ? 'brisk — quick, confident transitions'
+  : n === 0 ? 'even — unhurried, steady'
+  : n >= -2 ? 'settled — soft landings, longer dissolves'
+  : 'slow — long dissolves, weighty settles';
+const tempoOf = (n) => n >= 3 ? 'up-tempo, driving' : n > 0 ? 'moderato, forward-leaning' : n === 0 ? 'andante, even' : n >= -3 ? 'adagio, warm' : 'largo, deep';
+
+function briefData() {
+  const st = state.study;
+  const { journey, cadence } = state.prog;
+  const home = st.identity.arch, dest = ARCHETYPES[state.destIdx];
+  const energy = ACCIDENTALS[dest.key];
+
+  // each move is a small playbook: why this route, what to actually do,
+  // what tells you it worked, and the music underneath it
+  let moves;
+  if (journey.inPlace) {
+    moves = [{
+      when: 'Now', title: `Deepen in ${pretty(home.key)}`,
+      why: `Identity and destination already share a position — the diagnosis is not distance but thin voicing. ${st.image.mode === 'minor' ? 'And the reputation carries the same position in a sour register: people see where you stand and resent the standing. That is fixed by changing how the position feels, not where it is.' : 'The strategy is consistency at a volume the category cannot ignore.'}`,
+      actions: [home.design.behavior[0], home.design.voice[0]],
+      signal: 'Done when the category describes you in the same words twice — consistency has become reputation.',
+      music: 'Same tonic, fuller chord; the piece closes on the amen (IV → I).',
+    }];
+  } else if (journey.genre) {
+    const g = GENRES.find((x) => x.id === journey.genre);
+    const audDist = circleDistance(state.destIdx, st.audience.index);
+    moves = [{
+      when: 'Now',
+      title: `The ${g.title.toLowerCase()} route — ${pretty(home.key)} → ${pretty(dest.key)}`,
+      why: g.moveWhy + (audDist <= 1 ? ' And it lands on your people’s own ground — the room is predisposed to sing along.' : ''),
+      actions: [dest.design.behavior[0], dest.design.voice[0]],
+      signal: g.signal,
+      music: journey.genre === 'jazz'
+        ? `${pretty(dest.key)}’s ii, then the tritone substitute — the resolution delayed on purpose.`
+        : `the doo-wop loop (I–vi–IV–V) in ${pretty(dest.key)}, hook first, key change last.`,
+    }];
+  } else {
+    moves = journey.movements.map((m, i) => {
+      const toA = ARCHETYPES[m.to];
+      const fromA = ARCHETYPES[m.from];
+      const mc = movementChords(m, { resolve: false });
+      const audDist = circleDistance(m.to, st.audience.index);
+      const audNote = audDist <= 1
+        ? ` This ground sits beside your people’s own position — they will read the move as their own language.`
+        : audDist <= 3 ? ` Your people can follow this from where they stand.` : '';
+      if (m.type === 'turn') {
+        return {
+          when: i === 0 ? 'Now' : 'Next',
+          title: `The turn — enter ${toA.name.replace('The ', 'the ')}’s grammar`,
+          why: `Names are claimed last. Before ${esc(state.brandName)} calls itself ${toA.name.replace('The ', 'a ').toLowerCase()}, it behaves like one while still looking and sounding like itself — so the audience experiences the change as growth, not costume. The behaviors come first; the label rides in on them.`,
+          actions: [toA.design.behavior[0], toA.design.voice[0]],
+          signal: 'When the new behaviors stop reading as a campaign and start reading as policy, the name is claimable.',
+          music: mc.pivotGloss,
+        };
+      }
+      const br = m.dist === 1 ? bridgeFor(m.from, m.to) : null;
+      const single = journey.movements.length === 1;
+      return {
+        when: i === 0 ? 'Now' : 'Next',
+        title: `${single ? 'The move' : 'The bridge'} — ${pretty(fromA.key)} → ${pretty(toA.key)}`,
+        why: `${single ? '' : `The stepping stone: before the destination is reachable, the brand needs ground that belongs to both worlds. `}${br ? br.principle : `Carry ${fromA.value.toLowerCase()} toward ${toA.value.toLowerCase()} through meanings both positions already own.`}${audNote}`,
+        actions: [toA.design.voice[0], toA.design.behavior[0]],
+        signal: `You’ve landed when outsiders start using ${toA.value.toLowerCase()}-words about you unprompted.`,
+        music: mc.pivotGloss,
+      };
+    });
+  }
+  const CAD_SIGNALS = {
+    authentic: 'The claim lands without pushback — nobody asks “who do they think they are.”',
+    plagal: 'Nobody remembers it was ever different; the new position reads as having always been true.',
+    deceptive: 'The public surprise buys the belief the old reputation couldn’t.',
+  };
+  moves.push({
+    when: 'The claim', title: `${CADENCES[cadence].name} (${CADENCES[cadence].figure})`,
+    why: `${CADENCES[cadence].reading} The reputation currently sits ${circleDistance(st.image.index, state.destIdx)} fifths from the destination — that distance is what chose this arrival.`,
+    actions: [CADENCES[cadence].principle],
+    signal: CAD_SIGNALS[cadence],
+    music: `${CADENCES[cadence].figure} in ${pretty(dest.key)}.`,
+  });
+
+  const gov = governingGap();
+  return {
+    home, dest, energy, moves,
+    saynot: SAYNOT[dest.id] || [],
+    voiceDo: dest.design.voice,
+    aesthetic: dest.design.aesthetic,
+    behavior: dest.design.behavior,
+    light: lightOf(energy), motion: motionOf(energy), tempo: tempoOf(energy),
+    sonic: { key: `${pretty(dest.key)} ${state.destMode}`, sig: signatureChord(state.destIdx, state.destMode), cadence: CADENCES[cadence] },
+    guardrails: {
+      keep: `${home.gift} — the ${home.name.replace('The ', '')}’s gift travels with you; a modulation is not an amnesia.`,
+      refuse: `${dest.shadow}. Every key has its minor; this is ${pretty(dest.key)}’s.`,
+      watch: gov.dist >= 4 ? `${gov.name} (${INTERVAL_CLASSES[gov.dist].name}): ${INTERVAL_CLASSES[gov.dist].strategic}` : null,
+    },
+  };
+}
+
+RENDER.leadsheet = () => {
+  const st = state.study;
+  const { journey, cadence } = state.prog;
+  const bars = annotateBars();
+  const B = briefData();
+  const A = st.identity.arch, Z = B.dest;
+
+  const measures = bars.map((b, i) => `
+    <div class="measure ${b.tag}" data-measure="${i}">
+      <span class="chordsym">${b.chord.label}</span>
+      <span class="roman">${b.chord.roman}${b.chord.key !== undefined ? ` <i>of ${pretty(b.chord.key)}</i>` : ''}</span>
+      <span class="barnote">${b.note}</span>
+    </div>`).join('');
+
+  return `
+  <section class="panel sheetpanel">
+    <p class="overline">${esc(state.brandName)} · the brief</p>
+    <h2 class="h2">${esc(state.brandName)}${journey.inPlace ? ` — deepening in ${pretty(A.key)}` : ` — from ${pretty(A.key)} to ${pretty(Z.key)}`}</h2>
+    <p class="body">${journey.inPlace ? `${A.name}, voiced more fully.` : `${A.name} → ${Z.name} · ${journey.genre ? `the ${journey.genre} route` : journey.movements.length === 1 ? 'one movement' : 'a bridge and a turn'} · arriving on a ${CADENCES[cadence].name}.`}</p>
+    <div class="btnrow tight">
+      <button class="btn primary" data-act="perform">▸ perform it — ${journey.genre || 'classical'}</button>
+      <button class="btn" data-act="playall">chords only</button>
+      <button class="btn" data-act="copy">copy as markdown</button>
+      <button class="btn" data-act="print">print / pdf</button>
+    </div>
+    <div class="sheet">${measures}</div>
+
+    <h3 class="h3">The moves — how the repositioning actually works</h3>
+    <div class="roadmap">
+      ${B.moves.map((m) => `
+        <div class="roadrow">
+          <span class="roadwhen">${m.when}</span>
+          <div>
+            <p class="roadtitle">${m.title}</p>
+            <p class="whyline">${m.why}</p>
+            <ul class="dolist">${m.actions.map((a) => `<li>${a}</li>`).join('')}</ul>
+            <p class="signal">You’ll know: ${m.signal}</p>
+            <p class="musicnote">In the music: ${m.music}</p>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <h3 class="h3">Voice — say this, not that</h3>
+    <div class="saynot">
+      ${B.saynot.map((p) => `
+        <div class="sayrow">
+          <p class="saydo">“${p.say}”</p>
+          <p class="saynotp">not “${p.not}”</p>
+        </div>`).join('')}
+    </div>
+    <ul class="specbullets">${B.voiceDo.map((x) => `<li>${x}</li>`).join('')}</ul>
+
+    <h3 class="h3">Look &amp; feel — the physics of ${pretty(Z.key)}</h3>
+    <p class="body"><strong>Light:</strong> ${B.light}. <strong>Motion:</strong> ${B.motion}. ${B.energy > 0 ? `${B.energy} sharp${B.energy > 1 ? 's' : ''} — energy carried as brightness.` : B.energy < 0 ? `${-B.energy} flat${B.energy < -1 ? 's' : ''} — depth carried as warmth.` : 'No accidentals — clarity carried as restraint.'}</p>
+    <ul class="specbullets">${B.aesthetic.map((x) => `<li>${x}</li>`).join('')}</ul>
+
+    <h3 class="h3">Behavior — proof over promise</h3>
+    <ul class="specbullets">${B.behavior.map((x) => `<li>${x}</li>`).join('')}</ul>
+
+    <h3 class="h3">Sound — the sonic direction</h3>
+    <p class="body">The brand sounds in <strong>${B.sonic.key}</strong>. Signature chord: <strong>${B.sonic.sig.label}</strong> — ${B.sonic.sig.gloss}. Arrivals resolve by <strong>${B.sonic.cadence.name}</strong> (${B.sonic.cadence.figure}); tempo ${B.tempo}. Hand this sentence to a composer and they can begin.</p>
+
+    <h3 class="h3">Guardrails</h3>
+    <div class="keepshadow">
+      <p class="body"><strong>Carry from home:</strong> ${B.guardrails.keep}</p>
+      <p class="body"><strong>The shadow to refuse:</strong> ${B.guardrails.refuse}</p>
+      ${B.guardrails.watch ? `<p class="body"><strong>Standing watch:</strong> ${B.guardrails.watch}</p>` : ''}
+    </div>
+
+    <div class="btnrow">
+      <button class="btn ghost" data-act="refutures">← choose a different future</button>
+      <button class="btn" data-act="notes">field notes</button>
+      <button class="btn ghost" data-act="again">begin another study</button>
+    </div>
+    <p class="printfoot">harmonics — a semiotic study in twelve keys</p>
+  </section>`;
+};
+
+WIRE.leadsheet = () => {
+  const highlightBar = (i) => {
+    qa('.measure').forEach((m) => m.classList.remove('playing'));
+    const el = q(`[data-measure="${i}"]`);
+    if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  };
+  q('[data-act=perform]').onclick = () => {
+    const genre = state.prog.journey.genre || 'classical';
+    const piece = composePiece(state.prog.bars, genre);
+    audio.playPiece(piece, {
+      onBar: highlightBar,
+      onDone: () => qa('.measure').forEach((m) => m.classList.remove('playing')),
+    });
+  };
+  q('[data-act=playall]').onclick = () => {
+    const bars = state.prog.bars;
+    qa('.measure').forEach((m) => m.classList.remove('playing'));
+    audio.playProgression(bars.map((b) => playable(b.chord)), {
+      secondsPerChord: bars.length > 14 ? 1.35 : 1.7,
+      onStep: (i) => {
+        qa('.measure').forEach((m) => m.classList.remove('playing'));
+        const el = q(`[data-measure="${i}"]`);
+        if (el) { el.classList.add('playing'); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+      },
+      onDone: () => qa('.measure').forEach((m) => m.classList.remove('playing')),
+    });
+  };
+  q('[data-act=copy]').onclick = (e) => {
+    const text = exportMarkdown();
+    const done = () => {
+      e.target.textContent = 'copied ✓';
+      setTimeout(() => { e.target.textContent = 'copy as markdown'; }, 1600);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => { fallbackCopy(text); done(); });
+    } else { fallbackCopy(text); done(); }
+  };
+  q('[data-act=print]').onclick = () => window.print();
+  q('[data-act=refutures]').onclick = () => setScreen('futures');
+  q('[data-act=notes]').onclick = () => { state.cameFrom = 'leadsheet'; setScreen('notes'); };
+  q('[data-act=again]').onclick = () => setScreen('setup');
+};
+
+/* ---- field notes --------------------------------------------------- */
+RENDER.notes = () => `
+  <section class="panel narrow">
+    <p class="overline">field notes</p>
+    <h2 class="h2">How the map works</h2>
+    ${METHODOLOGY.map((m) => `<h3 class="h3">${m.h}</h3><p class="body">${m.p}</p>`).join('')}
+    <h3 class="h3">The twelve, assigned</h3>
+    <div class="maptable">
+      ${ARCHETYPES.map((a) => `
+        <div class="maprow">
+          <span class="mkey">${pretty(a.key)}</span>
+          <span class="mname">${a.name} <i>· ${a.value.toLowerCase()}</i></span>
+          <span class="mlore">${a.keyLore}</span>
+        </div>`).join('')}
+    </div>
+    <p class="backlink"><a data-act="back">← return</a></p>
+  </section>`;
+
+WIRE.notes = () => { q('[data-act=back]').onclick = () => setScreen(state.cameFrom || 'landing'); };
+
+/* ---- markdown export ----------------------------------------------- */
+function exportMarkdown() {
+  const st = state.study;
+  const bars = annotateBars();
+  const B = briefData();
+  const s1 = st.square.s1, s2 = st.square.s2;
+  const L = [];
+  L.push(`# ${state.brandName} — the brief`, '');
+  L.push(`*A semiotic study in twelve keys · ${B.home.name} (${pretty(B.home.key)}) → ${B.dest.name} (${pretty(B.dest.key)})*`, '');
+  L.push(`## The territory`, '');
+  L.push(`Core opposition: **${s1.term}** (${byId[s1.id].name}) vs **${s2.term}** (${byId[s2.id].name}).`, '');
+  L.push(`## The four positions`, '');
+  LENS_ORDER.forEach((l) => {
+    const d = LENSES.find((x) => x.id === l);
+    L.push(`- **${d.title}** — ${st[l].arch.name}, ${st[l].arch.keyLabel.replace(' major', '')} ${modeWord(st[l].mode)}. ${st[l].arch[posLine[l]]}`);
+  });
+  L.push('', `## The intervals`, '');
+  [...state.gaps].sort((a, b) => b.dist - a.dist).forEach((g) => {
+    const ic = INTERVAL_CLASSES[g.dist];
+    L.push(`- **${g.name}** (${pretty(st[g.a].arch.key)} ↔ ${pretty(st[g.b].arch.key)}, ${ic.name}) — ${ic.strategic}`);
+  });
+  L.push('', `## The progression`, '');
+  L.push(bars.map((b) => b.chord.label).join(' | '), '');
+  L.push(bars.map((b) => `\`${b.chord.label}\` — ${b.note}`).join('\n'), '');
+  L.push(`## The moves`, '');
+  B.moves.forEach((m) => {
+    L.push(`### ${m.when} — ${m.title}`, '', m.why, '');
+    m.actions.forEach((a) => L.push(`- ${a}`));
+    L.push(`- **You'll know:** ${m.signal}`);
+    L.push(`- *In the music:* ${m.music}`, '');
+  });
+  L.push('', `## Voice — say this, not that`, '');
+  B.saynot.forEach((p) => L.push(`- Say: “${p.say}” — not: “${p.not}”`));
+  B.voiceDo.forEach((x) => L.push(`- ${x}`));
+  L.push('', `## Look & feel — the physics of ${pretty(B.dest.key)}`, '');
+  L.push(`Light: ${B.light}. Motion: ${B.motion}.`);
+  B.aesthetic.forEach((x) => L.push(`- ${x}`));
+  L.push('', `## Behavior — proof over promise`, '');
+  B.behavior.forEach((x) => L.push(`- ${x}`));
+  L.push('', `## Sound`, '');
+  L.push(`Key: ${B.sonic.key}. Signature chord: ${B.sonic.sig.label} (${B.sonic.sig.gloss}). Cadence: ${B.sonic.cadence.name} (${B.sonic.cadence.figure}). Tempo: ${B.tempo}.`);
+  L.push('', `## Guardrails`, '');
+  L.push(`- **Carry from home:** ${B.guardrails.keep}`);
+  L.push(`- **The shadow to refuse:** ${B.guardrails.refuse}`);
+  if (B.guardrails.watch) L.push(`- **Standing watch:** ${B.guardrails.watch}`);
+  L.push('', `_harmonics — a semiotic study in twelve keys_`);
+  return L.join('\n');
+}
+
+/* ---- utilities ----------------------------------------------------- */
+const q = (sel) => stage.querySelector(sel);
+const qa = (sel) => [...stage.querySelectorAll(sel)];
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch (e) { /* clipboard unavailable */ }
+  ta.remove();
+}
+
+/* ---- go ------------------------------------------------------------ */
+stage.innerHTML = RENDER.landing();
+WIRE.landing();
+armReveals();
+window.__harmonics = state; // inspectable from the console; harmless in production
+
+</script>
