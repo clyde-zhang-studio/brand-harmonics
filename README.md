@@ -2,7 +2,7 @@
 
 *A semiotic study of brands, in twelve keys.*
 
-**→ [cownut-oss.github.io/brand-harmonics](https://cownut-oss.github.io/brand-harmonics/)**
+**→ [clyde-zhang-studio.github.io/brand-harmonics](https://clyde-zhang-studio.github.io/brand-harmonics/)**
 
 An interactive study that locates a brand four times — **as it is** (identity), **as its people are** (audience), **as it is believed to be** (image), **as it could be** (aspiration) — sets each position ringing in its proper musical key, and composes the repositioning as a chord progression you can actually hear played. The final deliverable is a creative brief: the lead sheet, the moves, say-this-not-that voice, look and feel, and guardrails.
 

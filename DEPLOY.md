@@ -6,7 +6,7 @@ The site is plain static files — no build step, no dependencies, no server cod
 
 GitHub Pages, from the `main` branch of this repo:
 
-> **https://cownut-oss.github.io/brand-harmonics/**
+> **https://clyde-zhang-studio.github.io/brand-harmonics/**
 
 ## First-time setup (once)
 
@@ -15,7 +15,7 @@ GitHub Pages, from the `main` branch of this repo:
 2. **Push this folder.** From `brand-harmonics/`:
 
    ```bash
-   git remote add origin https://github.com/cownut-oss/brand-harmonics.git
+   git remote add origin https://github.com/clyde-zhang-studio/brand-harmonics.git
    git push -u origin main
    ```
 
@@ -44,7 +44,7 @@ Four absolute URLs are hard-coded for link previews and must match wherever it l
 
 ## Custom domain
 
-In Settings → Pages, add the domain and create a `CNAME` DNS record pointing at `cownut-oss.github.io`. Then update the four URLs above. Leave *Enforce HTTPS* on.
+In Settings → Pages, add the domain and create a `CNAME` DNS record pointing at `clyde-zhang-studio.github.io`. Then update the four URLs above. Leave *Enforce HTTPS* on.
 
 ## What's in here
 
