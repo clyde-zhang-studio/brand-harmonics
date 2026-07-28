@@ -66,9 +66,10 @@ body {
 #stage.leaving { opacity: 0; transform: translateY(8px); }
 
 /* ---- type ---- */
+/* sized so the full name always holds one line, from phone to desktop */
 .title { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-style: italic;
-  font-size: clamp(3.2rem, 9vw, 5.8rem); letter-spacing: .02em; margin: .05em 0 .25em; color: var(--ink);
-  text-wrap: balance; }
+  font-size: clamp(2rem, 5.4vw, 3.85rem); letter-spacing: .02em; margin: .1em 0 .35em; color: var(--ink);
+  white-space: nowrap; }
 .overline { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .22em;
   text-transform: uppercase; color: var(--ink); background: var(--gold); padding: .45em 1em;
   transform: rotate(-.8deg); margin: 0 0 1.1em; box-shadow: 2px 2px 0 var(--ink); }

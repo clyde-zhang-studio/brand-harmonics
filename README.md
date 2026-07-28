@@ -1,4 +1,4 @@
-# brand harmonics
+# Brand Harmonics
 
 *A semiotic study of brands, in twelve keys.*
 

@@ -612,7 +612,7 @@ export const SAYNOT = {
 
 /* ---- ui strings --------------------------------------------------- */
 export const APP = {
-  title: 'brand harmonics',
+  title: 'Brand Harmonics',
   tagline: 'a semiotic study of brands, in twelve keys',
   landing: [
     'What key is your brand in?',

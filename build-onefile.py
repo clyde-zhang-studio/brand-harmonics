@@ -35,7 +35,7 @@ html = f"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>brand harmonics — strategy you can hear</title>
+<title>Brand Harmonics — strategy you can hear</title>
 <meta name="description" content="An interactive semiotic study of brands: twelve brand archetypes mapped onto the twelve keys of the circle of fifths." />
 <!-- Self-contained by design: no network requests at all, so the display face
      falls back to Georgia and the text face to the system UI font. -->
@@ -53,7 +53,7 @@ html = f"""<!DOCTYPE html>
 <div id="announcer" role="status" aria-live="polite" class="visually-hidden"></div>
 <noscript>
   <div style="max-width:680px;margin:12vh auto;padding:32px;border:2.5px solid #241b10;border-radius:10px;background:#fffdf4;box-shadow:6px 6px 0 #241b10;font-family:Georgia,serif">
-    <h1 style="font-style:italic;font-weight:400;margin:0 0 .4em">brand harmonics</h1>
+    <h1 style="font-style:italic;font-weight:400;margin:0 0 .4em">Brand Harmonics</h1>
     <p style="line-height:1.7">This study is an interactive instrument — it needs JavaScript to plot the semiotic square, sound the circle of fifths, and compose the progression. Please enable JavaScript and reload.</p>
   </div>
 </noscript>
